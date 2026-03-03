@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart'; // ✅ add this import
 
@@ -85,9 +86,7 @@ class RelstoneApp extends StatelessWidget {
         '/signup': (context) => const Scaffold(
               body: Center(child: Text('Sign Up Screen')),
             ),
-        '/dashboard': (context) => const Scaffold(
-              body: Center(child: Text('Dashboard')),
-            ),
+        '/homescreen': (context) => const HomeScreen(),
       },
     );
   }
@@ -171,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Navigator.pushReplacementNamed(context, '/homescreen');
       return;
     }
 

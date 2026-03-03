@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:relstone_mobile/login_screen/login_screen.dart';
 import 'package:relstone_mobile/sign_up_screen/sign_up_screen.dart';
+import 'package:relstone_mobile/verify_email_screen/verify_email_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -17,9 +19,8 @@ class MainApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignUpScreen(),
-        '/dashboard': (context) => const Scaffold(
-        body: Center(child: Text('Dashboard')),
-      ),
+        '/homescreen': (context) => const HomeScreen(),  // 👈 using HomeScreen instead of SignUpScreen
+        '/verify-email': (context) => const VerifyEmailScreen(),
       },
     );
   }
