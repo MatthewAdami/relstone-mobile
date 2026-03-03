@@ -1,12 +1,16 @@
+// lib/services/auth_service.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import 'api_client.dart';
 
 class AuthService {
+  /// ✅ LOGIN: matches your backend /api/auth/login
+  /// - 200: returns { token, user }
+  /// - 403: returns { needsVerification: true, userId, message }
   static Future<Map<String, dynamic>> login(String email, String password) async {
     final result = await ApiClient.post(
       ApiConfig.login,
-      body: {'email': email, 'password': password},
+      body: {'email': email.trim(), 'password': password},
     );
 
     final int status = result['statusCode'] as int;
@@ -27,8 +31,8 @@ class AuthService {
       return {
         'success': false,
         'needsVerification': true,
-        'userId': data['userId'],
-        'message': data['message'] ?? 'Email not verified',
+        'userId': data['userId']?.toString(),
+        'message': data['message'] ?? 'Please verify your email.',
       };
     }
 
@@ -38,7 +42,9 @@ class AuthService {
     };
   }
 
-  // ✅ ADD THIS
+  /// ✅ REGISTER: matches your backend /api/auth/register
+  /// - 201: returns { message, userId }
+  /// NOTE: Do NOT save token/user here because backend doesn't return them on register.
   static Future<Map<String, dynamic>> register({
     required String firstName,
     required String lastName,
@@ -58,31 +64,21 @@ class AuthService {
     final int status = result['statusCode'] as int;
     final Map<String, dynamic> data = result['data'] as Map<String, dynamic>;
 
-    // Common success statuses: 200 or 201
     if (status == 200 || status == 201) {
-      // If your backend returns token+user on register:
-      final token = data['token'];
-      final user = data['user'];
-
-      final prefs = await SharedPreferences.getInstance();
-      if (token != null) await prefs.setString('token', token.toString());
-      if (user != null) await prefs.setString('user', user.toString());
-
       return {
         'success': true,
-        'user': user,
-        'message': data['message'] ?? 'Registered successfully',
+        'userId': data['userId']?.toString(), // ✅ IMPORTANT for verify step
+        'message': data['message'] ?? 'Account created. Please verify your email.',
       };
     }
 
-    // If your backend requires email verification and returns something like:
-    // { needsVerification: true, userId: "...", message: "..." }
+    // Optional: in case you later change backend to send this
     if (status == 403 && data['needsVerification'] == true) {
       return {
         'success': false,
         'needsVerification': true,
-        'userId': data['userId'],
-        'message': data['message'] ?? 'Please verify your email',
+        'userId': data['userId']?.toString(),
+        'message': data['message'] ?? 'Please verify your email.',
       };
     }
 
@@ -93,10 +89,21 @@ class AuthService {
     };
   }
 
-  // ✅ OPTIONAL helper for logout (used in sidebar)
+  /// ✅ LOGOUT: used for sidebar logout
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     await prefs.remove('user');
+  }
+
+  /// ✅ Optional helpers
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
   }
 }
