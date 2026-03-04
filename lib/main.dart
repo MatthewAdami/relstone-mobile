@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
+import 'package:relstone_mobile/insurance_ce_screen/insurance_ce_screen.dart';
 import 'package:relstone_mobile/login_screen.dart';
 import 'package:relstone_mobile/sign_up_screen.dart';
 import 'package:relstone_mobile/verify_email_screen.dart';
@@ -24,6 +25,9 @@ class MainApp extends StatelessWidget {
         '/verify-email': (context) => const VerifyEmailScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/states': (context) => const StatesScreen(),
+        '/insurance-ce': (context) => const InsuranceCEScreen(),
+        '/insurance-states': (context) => const InsuranceCEScreen(),
+        '/insurance-courses': (context) => const InsuranceCEScreen(),
       },
     );
   }

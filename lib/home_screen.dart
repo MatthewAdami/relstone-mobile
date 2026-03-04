@@ -680,7 +680,9 @@ class _ServiceCard extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: ElevatedButton(
                       onPressed: () {
-                        // TODO: Hook up to routes
+                        if (title == 'Insurance CE') {
+                          Navigator.pushNamed(context, '/insurance-ce');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryNavy,
