@@ -5,6 +5,7 @@ import 'package:relstone_mobile/sign_up_screen.dart';
 import 'package:relstone_mobile/verify_email_screen.dart';
 import 'package:relstone_mobile/forgot_password_screen.dart';
 import 'package:relstone_mobile/states_screen.dart';
+import 'package:relstone_mobile/contact_screen.dart';
 void main() {
   runApp(const MainApp());
 }
@@ -24,6 +25,7 @@ class MainApp extends StatelessWidget {
         '/verify-email': (context) => const VerifyEmailScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/states': (context) => const StatesScreen(),
+        '/contact': (context) => const ContactScreen(),
       },
     );
   }

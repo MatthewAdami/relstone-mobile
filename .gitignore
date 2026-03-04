@@ -12,6 +12,38 @@
 .swiftpm/
 migrate_working_dir/
 
+<<<<<<< HEAD
+=======
+# Documentation files (specific local setup files only)
+CONNECTION_FIX_SUMMARY.md
+DEBUGGING_CONNECTION.md
+DEVELOPER_SETUP.md
+SOLUTION_SUMMARY.md
+BACKEND_ENDPOINTS.md
+DART_SDK_FIXED.md
+
+# Backend documentation and scripts (local setup files)
+backend/MONGODB_SOLUTION.txt
+backend/QUICK_FIX_CHECKLIST.txt
+backend/QUICK_REFERENCE.txt
+backend/README_MONGODB_FIX.txt
+backend/STATUS_AND_NEXT_STEPS.txt
+backend/START_HERE.txt
+backend/START_HERE.md
+backend/SUCCESS.md
+backend/WHY_SRV_FAILS.md
+backend/fix-dns.bat
+backend/fix-mongodb.ps1
+backend/server.js
+backend/package.json
+backend/test-connection.js
+backend/check-password.js
+backend/start-server.bat
+backend/start-server.ps1
+backend/.env
+
+
+>>>>>>> 1585d9b (Full UI of Contact Page)
 # IntelliJ related
 *.iml
 *.ipr
