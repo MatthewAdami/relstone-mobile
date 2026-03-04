@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import '../config/api_config.dart';
+import '../services/api_client.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -256,10 +261,14 @@ class _AppSidebar extends StatelessWidget {
 
             _NavExpansion(
               title: "States",
+              initiallyExpanded: true,
               children: [
-                _NavItem(
-                  title: "Select a State",
-                  onTap: () => _go(context, "/states"),
+                _StatesDropdownPanel(
+                  onSelectState: (slug) {
+                    // TODO: keep selected slug and route to a state-specific page.
+                    // Example: _go(context, '/insurance-states/$slug');
+                    _go(context, '/insurance-states');
+                  },
                 ),
               ],
             ),
@@ -376,8 +385,13 @@ class _NavItem extends StatelessWidget {
 class _NavExpansion extends StatelessWidget {
   final String title;
   final List<Widget> children;
+  final bool initiallyExpanded;
 
-  const _NavExpansion({required this.title, required this.children});
+  const _NavExpansion({
+    required this.title,
+    required this.children,
+    this.initiallyExpanded = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,6 +402,8 @@ class _NavExpansion extends StatelessWidget {
         highlightColor: Colors.transparent,
       ),
       child: ExpansionTile(
+        initiallyExpanded: initiallyExpanded,
+        maintainState: true,
         tilePadding: const EdgeInsets.symmetric(horizontal: 16),
         childrenPadding: const EdgeInsets.only(left: 10, bottom: 8),
         collapsedIconColor: Colors.white70,
@@ -400,6 +416,219 @@ class _NavExpansion extends StatelessWidget {
           ),
         ),
         children: children,
+      ),
+    );
+  }
+}
+
+class _StatesDropdownPanel extends StatefulWidget {
+  final ValueChanged<String>? onSelectState;
+
+  const _StatesDropdownPanel({this.onSelectState});
+
+  @override
+  State<_StatesDropdownPanel> createState() => _StatesDropdownPanelState();
+}
+
+class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
+  late List<_StateOption> _states;
+
+  static const List<String> _fallbackStates = [
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'District of Columbia',
+    'Florida',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Start with empty states - only populate from API
+    _states = [];
+    
+    // ✅ Fetch from API immediately
+    _fetchStatesInBackground();
+  }
+
+  // ✅ Fetch in background without blocking UI
+  Future<void> _fetchStatesInBackground() async {
+    try {
+      print('📡 Fetching states from: ${ApiConfig.insuranceStates}');
+      final result = await ApiClient.get(ApiConfig.insuranceStates);
+      print('✅ API Response Status: ${result['statusCode']}');
+      print('📦 API Response Data: ${result['data']}');
+      
+      final int status = result['statusCode'] as int;
+      final Map<String, dynamic> data = result['data'] as Map<String, dynamic>;
+
+      if (status >= 200 && status < 300) {
+        final statesList = data['data'];
+        print('🔍 States List: $statesList');
+        
+        if (statesList is List && statesList.isNotEmpty) {
+          final fetchedStates = statesList
+              .map((e) => _StateOption.fromJson(e as Map<String, dynamic>))
+              .where((s) => s.name.isNotEmpty && s.slug.isNotEmpty)
+              .toList();
+          
+          print('✨ Parsed ${fetchedStates.length} states');
+          if (fetchedStates.isNotEmpty && mounted) {
+            setState(() {
+              _states = fetchedStates;
+            });
+            print('🎉 States updated on UI');
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Error fetching states: $e');
+    }
+  }
+
+  void _retry() {
+    _fetchStatesInBackground();
+  }
+
+  static String _slugify(String value) => value
+      .toLowerCase()
+      .replaceAll('&', 'and')
+      .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
+      .trim()
+      .replaceAll(RegExp(r'\s+'), '-');
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF16253A),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'SELECT A STATE',
+            style: TextStyle(
+              color: Colors.white54,
+              fontSize: 12,
+              letterSpacing: 1.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final count = constraints.maxWidth >= 560
+                  ? 3
+                  : constraints.maxWidth >= 360
+                      ? 2
+                      : 1;
+
+              return GridView.builder(
+                itemCount: _states.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: count,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: count == 1 ? 4.4 : 2.8,
+                ),
+                itemBuilder: (context, index) {
+                  final state = _states[index];
+                  return _StateTile(
+                    title: state.name,
+                    onTap: () => widget.onSelectState?.call(state.slug),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StateTile extends StatelessWidget {
+  final String title;
+  final VoidCallback? onTap;
+
+  const _StateTile({required this.title, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF2B3648),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFFE2E6EC),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1036,6 +1265,20 @@ class _FooterChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StateOption {
+  final String name;
+  final String slug;
+
+  const _StateOption({required this.name, required this.slug});
+
+  factory _StateOption.fromJson(Map<String, dynamic> json) {
+    return _StateOption(
+      name: (json['name'] ?? '').toString(),
+      slug: (json['slug'] ?? '').toString(),
     );
   }
 }

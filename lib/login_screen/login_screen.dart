@@ -3,21 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/auth_service.dart'; // ✅ add this import
+import '../config/api_config.dart';
+// ✅ add this import
 
 
 // ── Auth Service (inline for single-file convenience) ────────────────────────
 class AuthService {
-  // 🔁 Change to match your environment:
-  static const String baseUrl = 'http://10.0.2.2:5000/api'; // Android emulator
-  // static const String baseUrl = 'http://localhost:5000/api';       // iOS simulator
-  // static const String baseUrl = 'http://192.168.1.x:5000/api';    // Real device (your PC IP)
-  // static const String baseUrl = 'https://your-api.com/api';       // Production
-
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
+      Uri.parse(ApiConfig.login),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
