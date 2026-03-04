@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 import '../services/api_client.dart';
@@ -224,9 +222,8 @@ class _AppSidebar extends StatelessWidget {
 
   static const Color navBg = Color(0xFF0B1A2A);
 
-  void _go(BuildContext context, String route) {
-    Navigator.pop(context); // close drawer
-    Navigator.pushNamed(context, route);
+  void _go(BuildContext context, String route, {Object? arguments}) {
+    Navigator.popAndPushNamed(context, route, arguments: arguments);
   }
 
   @override
@@ -265,9 +262,11 @@ class _AppSidebar extends StatelessWidget {
               children: [
                 _StatesDropdownPanel(
                   onSelectState: (slug) {
-                    // TODO: keep selected slug and route to a state-specific page.
-                    // Example: _go(context, '/insurance-states/$slug');
-                    _go(context, '/insurance-states');
+                    Navigator.of(context).pop();
+                    Navigator.of(context, rootNavigator: true).pushNamed(
+                      '/insurance-state',
+                      arguments: slug,
+                    );
                   },
                 ),
               ],
@@ -301,7 +300,7 @@ class _AppSidebar extends StatelessWidget {
               children: [
                 _NavItem(
                   title: "Select a State",
-                  onTap: () => _go(context, "/insurance-states"),
+                  onTap: () => _go(context, "/insurance-state"),
                 ),
                 _NavItem(
                   title: "Courses",
@@ -433,60 +432,6 @@ class _StatesDropdownPanel extends StatefulWidget {
 class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
   late List<_StateOption> _states;
 
-  static const List<String> _fallbackStates = [
-    'Alabama',
-    'Alaska',
-    'Arizona',
-    'Arkansas',
-    'California',
-    'Colorado',
-    'Connecticut',
-    'Delaware',
-    'District of Columbia',
-    'Florida',
-    'Georgia',
-    'Hawaii',
-    'Idaho',
-    'Illinois',
-    'Indiana',
-    'Iowa',
-    'Kansas',
-    'Kentucky',
-    'Louisiana',
-    'Maine',
-    'Maryland',
-    'Massachusetts',
-    'Michigan',
-    'Minnesota',
-    'Mississippi',
-    'Missouri',
-    'Montana',
-    'Nebraska',
-    'Nevada',
-    'New Hampshire',
-    'New Jersey',
-    'New Mexico',
-    'New York',
-    'North Carolina',
-    'North Dakota',
-    'Ohio',
-    'Oklahoma',
-    'Oregon',
-    'Pennsylvania',
-    'Rhode Island',
-    'South Carolina',
-    'South Dakota',
-    'Tennessee',
-    'Texas',
-    'Utah',
-    'Vermont',
-    'Virginia',
-    'Washington',
-    'West Virginia',
-    'Wisconsin',
-    'Wyoming',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -500,17 +445,13 @@ class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
   // ✅ Fetch in background without blocking UI
   Future<void> _fetchStatesInBackground() async {
     try {
-      print('📡 Fetching states from: ${ApiConfig.insuranceStates}');
       final result = await ApiClient.get(ApiConfig.insuranceStates);
-      print('✅ API Response Status: ${result['statusCode']}');
-      print('📦 API Response Data: ${result['data']}');
       
       final int status = result['statusCode'] as int;
       final Map<String, dynamic> data = result['data'] as Map<String, dynamic>;
 
       if (status >= 200 && status < 300) {
         final statesList = data['data'];
-        print('🔍 States List: $statesList');
         
         if (statesList is List && statesList.isNotEmpty) {
           final fetchedStates = statesList
@@ -518,30 +459,21 @@ class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
               .where((s) => s.name.isNotEmpty && s.slug.isNotEmpty)
               .toList();
           
-          print('✨ Parsed ${fetchedStates.length} states');
           if (fetchedStates.isNotEmpty && mounted) {
             setState(() {
               _states = fetchedStates;
             });
-            print('🎉 States updated on UI');
           }
         }
       }
-    } catch (e) {
-      print('❌ Error fetching states: $e');
+    } catch (_) {
+      // keep empty list if API fails
     }
   }
 
   void _retry() {
     _fetchStatesInBackground();
   }
-
-  static String _slugify(String value) => value
-      .toLowerCase()
-      .replaceAll('&', 'and')
-      .replaceAll(RegExp(r'[^a-z0-9\s-]'), '')
-      .trim()
-      .replaceAll(RegExp(r'\s+'), '-');
 
   @override
   Widget build(BuildContext context) {
