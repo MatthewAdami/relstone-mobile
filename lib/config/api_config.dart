@@ -10,9 +10,9 @@ class ApiConfig {
     return 'http://localhost:5000';
   }
 
-  static const String apiPrefix = "/api/v1";
+  static const String apiPrefix = "/api";
 
-  // ✅ Your Node routes (based on server.js using /api/v1 prefix)
+  // Backend routes are served under /api in current local setup.
   static String get login => "$baseUrl$apiPrefix/auth/login";
   static String get register => "$baseUrl$apiPrefix/auth/register";
   static String get health => "$baseUrl$apiPrefix/health";
