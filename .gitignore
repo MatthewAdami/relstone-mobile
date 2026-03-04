@@ -1,3 +1,9 @@
+# Node.js dependencies
+node_modules/
+backend/node_modules/
+package-lock.json
+backend/package-lock.json
+
 # Miscellaneous
 *.class
 *.log
@@ -11,6 +17,25 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+
+# Documentation files (specific local setup files only)
+CONNECTION_FIX_SUMMARY.md
+DEBUGGING_CONNECTION.md
+DEVELOPER_SETUP.md
+SOLUTION_SUMMARY.md
+BACKEND_ENDPOINTS.md
+DART_SDK_FIXED.md
+
+# Backend documentation and scripts (local setup files)
+backend/MONGODB_SOLUTION.txt
+backend/QUICK_FIX_CHECKLIST.txt
+backend/QUICK_REFERENCE.txt
+backend/README_MONGODB_FIX.txt
+backend/STATUS_AND_NEXT_STEPS.txt
+backend/START_HERE.txt
+backend/fix-dns.bat
+backend/fix-mongodb.ps1
+
 
 # IntelliJ related
 *.iml
