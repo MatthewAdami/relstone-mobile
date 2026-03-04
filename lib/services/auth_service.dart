@@ -1,4 +1,3 @@
-// lib/services/auth_service.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import 'api_client.dart';
