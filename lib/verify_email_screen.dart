@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../config/api_config.dart';
-import '../services/api_client.dart';
+import 'config/api_config.dart';
+import 'services/api_client.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
