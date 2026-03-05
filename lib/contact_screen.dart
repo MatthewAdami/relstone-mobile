@@ -1043,4 +1043,3 @@ class _LicenseInfoRow extends StatelessWidget {
     );
   }
 }
-
