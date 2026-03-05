@@ -19,6 +19,8 @@ class ApiConfig {
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
   static String insuranceState(String slug) =>
       "$baseUrl$apiPrefix/insurance/states/${Uri.encodeComponent(slug)}";
-    static String insuranceCourses(String slug) =>
+  static String insuranceCourses(String slug) =>
       "$baseUrl$apiPrefix/insurance/courses/${Uri.encodeComponent(slug)}";
+
+  static String insuranceStateFull(String slug) => insuranceState(slug);
 }
