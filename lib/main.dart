@@ -3,8 +3,8 @@ import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:relstone_mobile/login_screen/login_screen.dart';
 import 'package:relstone_mobile/pages/cart_page.dart';
 import 'package:relstone_mobile/pages/insurance_state_page.dart';
-import 'package:relstone_mobile/sign_up_screen/sign_up_screen.dart';
-import 'package:relstone_mobile/verify_email_screen/verify_email_screen.dart';
+import 'package:relstone_mobile/sign_up_screen.dart';
+import 'package:relstone_mobile/verify_email_screen.dart';
 
 void main() {
   runApp(const MainApp());
