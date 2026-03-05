@@ -29,6 +29,7 @@ class MainApp extends StatelessWidget {
         '/insurance-ce': (context) => const InsuranceCEScreen(),
         '/insurance-states': (context) => const InsuranceCEScreen(),
         '/insurance-courses': (context) => const InsuranceCEScreen(),
+        '/insurance-state-courses': (context) => const InsuranceCEScreen(),
         '/contact': (context) => const ContactScreen(),
       },
     );
