@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:relstone_mobile/insurance_ce_screen/insurance_ce_screen.dart';
+import 'package:relstone_mobile/insurance_ce_screen.dart';
 
 class StatesScreen extends StatefulWidget {
   const StatesScreen({super.key});

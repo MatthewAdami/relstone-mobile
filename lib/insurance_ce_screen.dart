@@ -2330,7 +2330,7 @@ class _InsuranceStateEmptyCourses extends StatelessWidget {
         children: [
           const Text(
             'No active courses are available for this state right now.',
-            style: const TextStyle(
+            style: TextStyle(
               color: _InsuranceCEScreenState.textMuted,
               fontSize: 14,
             ),

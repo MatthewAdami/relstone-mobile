@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
-import 'package:relstone_mobile/insurance_ce_screen/insurance_ce_screen.dart';
+import 'package:relstone_mobile/insurance_ce_screen.dart';
 import 'package:relstone_mobile/login_screen.dart';
 import 'package:relstone_mobile/sign_up_screen.dart';
 import 'package:relstone_mobile/verify_email_screen.dart';
