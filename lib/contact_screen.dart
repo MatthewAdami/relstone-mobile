@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({Key? key}) : super(key: key);
@@ -729,8 +733,6 @@ class _NavItem extends StatelessWidget {
 class _ContactFooterSection extends StatelessWidget {
   const _ContactFooterSection();
 
-  static const Color textMuted = Color(0xFF6B7E92);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -743,50 +745,88 @@ class _ContactFooterSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.home_work_rounded, color: Colors.white),
-              const SizedBox(width: 10),
-              const Text(
-                "RELSTONE",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                ),
-              ),
+              Icon(Icons.home_work_rounded, color: Colors.white),
+              SizedBox(width: 10),
+              Text('RELSTONE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            "Providing quality education for\nCalifornia Real Estate and Insurance professionals.",
-            style: TextStyle(
-              color: Colors.white70,
-              height: 1.45,
-              fontSize: 13,
-            ),
+            'Providing quality education for California Real Estate and Insurance professionals.',
+            style: TextStyle(color: Colors.white70, height: 1.45, fontSize: 13),
           ),
           const SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          Row(
             children: [
-              _FooterChip("Contact Us", () {
-                Navigator.pushNamed(context, '/contact');
-              }),
-              _FooterChip("Privacy Policy", () {}),
-              _FooterChip("Refund Policy", () {}),
-              _FooterChip("Terms of Use", () {}),
+              _ContactSocialIcon(icon: FontAwesomeIcons.facebook, color: const Color(0xFF1877F2), label: 'Facebook', url: 'https://www.facebook.com/RelstoneSD'),
+              const SizedBox(width: 10),
+              _ContactSocialIcon(icon: FontAwesomeIcons.linkedin, color: const Color(0xFF0A66C2), label: 'LinkedIn', url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
+              const SizedBox(width: 10),
+              _ContactSocialIcon(icon: FontAwesomeIcons.xTwitter, color: const Color(0xFFE7E7E7), label: 'X / Twitter', url: 'https://twitter.com/relstone'),
+              const SizedBox(width: 10),
+              _ContactSocialIcon(icon: FontAwesomeIcons.tiktok, color: const Color(0xFFEE1D52), label: 'TikTok', url: 'https://tiktok.com/@relstone'),
+              const SizedBox(width: 10),
+              _ContactSocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram', url: 'https://instagram.com/relstone'),
             ],
           ),
           const SizedBox(height: 14),
           const Divider(color: Colors.white12),
           const SizedBox(height: 10),
-          const Text(
-            "© 2026 Relstone. All rights reserved.",
-            style: TextStyle(color: textMuted, fontSize: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _FooterChip('Contact Us', () => Navigator.pushNamed(context, '/contact')),
+              _FooterChip('Privacy Policy', () {}),
+              _FooterChip('Refund Policy', () {}),
+              _FooterChip('Terms of Use', () {}),
+            ],
           ),
+          const SizedBox(height: 14),
+          const Divider(color: Colors.white12),
+          const SizedBox(height: 10),
+          const Text('© 2026 Relstone. All rights reserved.',
+              style: TextStyle(color: Color(0xFF6B7E92), fontSize: 12)),
         ],
+      ),
+    );
+  }
+}
+
+/* ─── SOCIAL ICON ──────────────────────────────────────────────────── */
+class _ContactSocialIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String url;
+  const _ContactSocialIcon({required this.icon, required this.color, required this.label, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: () async {
+          final uri = Uri.parse(url);
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
+          } catch (_) {
+            await launchUrl(uri, mode: LaunchMode.platformDefault);
+          }
+        },
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            border: Border.all(color: color.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Center(child: FaIcon(icon, color: color, size: 17)),
+        ),
       ),
     );
   }

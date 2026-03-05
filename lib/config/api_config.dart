@@ -1,11 +1,13 @@
-class ApiConfig {
-  // ✅ Choose ONE depending on how you run your app:
+import 'package:flutter/foundation.dart';
 
-  // Windows Desktop (currently running):
-  static const String baseUrl = "http://localhost:5000";
+class ApiConfig {
+  // Windows Desktop (localhost)
+  static const String baseUrl  = "http://localhost:5000";
+  static const String adminUrl = "http://localhost:8000";
 
   // Android Emulator -> points to your PC localhost
-  // static const String baseUrl = "http://10.0.2.2:5000";
+  // static const String baseUrl  = "http://10.0.2.2:5000";
+  // static const String adminUrl = "http://10.0.2.2:8000";
 
   // iOS Simulator:
   // static const String baseUrl = "http://localhost:5000";
@@ -15,8 +17,16 @@ class ApiConfig {
 
   static const String apiPrefix = "/api/v1";
 
-  // ✅ Your Node routes (based on server.js using /api/v1 prefix)
-  static String get login => "$baseUrl$apiPrefix/auth/login";
+  // ── Auth ──────────────────────────────────────────────────
+  static String get login    => "$baseUrl$apiPrefix/auth/login";
   static String get register => "$baseUrl$apiPrefix/auth/register";
-  static String get health => "$baseUrl$apiPrefix/health";
+  static String get health   => "$baseUrl$apiPrefix/health";
+
+  // ── Admin DB (port 8000) ──────────────────────────────────
+  static String get students => "$adminUrl/api/students";
+
+  // ── Insurance ─────────────────────────────────────────────
+  static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
+  static String insuranceStateFull(String slug) =>
+      "$baseUrl$apiPrefix/insurance/$slug/full";
 }
