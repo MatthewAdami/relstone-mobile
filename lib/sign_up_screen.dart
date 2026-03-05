@@ -304,6 +304,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         arguments: {
           'userId': result['userId'],
           'email': _emailController.text.trim(),
+          // verificationCode removed - user must check email now
         },
       );
       return;

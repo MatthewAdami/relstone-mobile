@@ -29,6 +29,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   // Passed via Navigator arguments
   String? _userId;
   String? _email;
+  String? _verificationCode; // For development/testing
 
   @override
   void dispose() {
@@ -41,16 +42,17 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     super.didChangeDependencies();
 
     // Expecting:
-    // Navigator.pushNamed(context, '/verify-email', arguments: {'userId': ..., 'email': ...})
+    // Navigator.pushNamed(context, '/verify-email', arguments: {'userId': ..., 'email': ..., 'verificationCode': ...})
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is Map) {
       _userId ??= args['userId']?.toString();
       _email ??= args['email']?.toString();
+      _verificationCode ??= args['verificationCode']?.toString();
     }
   }
 
   // ✅ Backend endpoints based on your auth.js
-  String get _verifyUrl => "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/verify";
+  String get _verifyUrl => "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/verify-email";
   String get _resendUrl =>
       "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/resend-code";
 
@@ -69,6 +71,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       _verifyUrl,
       body: {
         'userId': _userId,
+        'email': _email,
         'code': _codeController.text.trim(),
       },
     );
@@ -109,7 +112,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     final result = await ApiClient.post(
       _resendUrl,
-      body: {'userId': _userId},
+      body: {
+        'userId': _userId,
+        'email': _email,
+      },
     );
 
     if (!mounted) return;
@@ -199,6 +205,33 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                       height: 1.4,
                     ),
                   ),
+                  // Development: Show verification code
+                  if (_verificationCode != null && _verificationCode!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3CD),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFFFE69C)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.info_outline, size: 16, color: Color(0xFFC79000)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Code: $_verificationCode',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFFC79000),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 22),
 
                   Form(

@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Web uses localhost, Android emulator uses 10.0.2.2.
+  // Backend is now running on port 3000
   static String get baseUrl =>
-      kIsWeb ? "http://localhost:5000" : "http://10.0.2.2:5000";
+      kIsWeb ? "http://localhost:3000" : "http://10.0.2.2:3000";
 
-  static const String apiPrefix = "/api";
+  static const String apiPrefix = "/api/v1";
 
-  // ✅ Your Node routes (based on server.js: app.use('/api/auth', ...))
+  // ✅ Your Node routes (based on server.js endpoints)
   static String get login => "$baseUrl$apiPrefix/auth/login";
   static String get register => "$baseUrl$apiPrefix/auth/register";
   static String get health => "$baseUrl$apiPrefix/health";

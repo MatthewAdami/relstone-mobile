@@ -70,6 +70,7 @@ class AuthService {
       return {
         'success': true,
         'userId': data['userId']?.toString(), // ✅ IMPORTANT for verify step
+        'verificationCode': data['verificationCode']?.toString(), // For development/testing
         'message': data['message'] ?? 'Account created. Please verify your email.',
       };
     }

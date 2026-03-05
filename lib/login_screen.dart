@@ -11,31 +11,43 @@ import '../config/api_config.dart';
 class AuthService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    final response = await http.post(
-      Uri.parse(ApiConfig.login),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
+    try {
+      print('📡 Sending request to: ${ApiConfig.login}');
 
-    final data = jsonDecode(response.body);
+      final response = await http.post(
+        Uri.parse(ApiConfig.login),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+        throw 'Request timeout - backend not responding';
+      });
 
-    if (response.statusCode == 200) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']);
-      await prefs.setString('user', jsonEncode(data['user']));
-      return {'success': true, 'user': data['user']};
-    } else if (response.statusCode == 403 && data['needsVerification'] == true) {
-      return {
-        'success': false,
-        'needsVerification': true,
-        'userId': data['userId'],
-        'message': data['message'],
-      };
-    } else {
-      return {
-        'success': false,
-        'message': data['message'] ?? 'Login failed. Please try again.',
-      };
+      print('✅ Response status: ${response.statusCode}');
+      print('✅ Response body: ${response.body}');
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', data['token']);
+        await prefs.setString('user', jsonEncode(data['user']));
+        return {'success': true, 'user': data['user']};
+      } else if (response.statusCode == 403 && data['needsVerification'] == true) {
+        return {
+          'success': false,
+          'needsVerification': true,
+          'userId': data['userId'],
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Login failed. Please try again.',
+        };
+      }
+    } catch (e) {
+      print('❌ Network error: $e');
+      rethrow;
     }
   }
 
@@ -156,6 +168,10 @@ class _LoginScreenState extends State<LoginScreen>
   setState(() => _isLoading = true);
 
   try {
+    print('🔍 DEBUG: Attempting login to: ${ApiConfig.login}');
+    print('🔍 DEBUG: Base URL: ${ApiConfig.baseUrl}');
+    print('🔍 DEBUG: API Prefix: ${ApiConfig.apiPrefix}');
+
     final result = await AuthService.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
@@ -174,9 +190,10 @@ class _LoginScreenState extends State<LoginScreen>
     });
   } catch (e) {
     if (!mounted) return;
+    print('❌ ERROR: $e');
     setState(() {
       _isLoading = false;
-      _errorMessage = 'Cannot connect to server. Check API URL & internet.';
+      _errorMessage = 'Cannot connect to server. Check API URL & internet.\n\nError: $e';
     });
   }
 }
