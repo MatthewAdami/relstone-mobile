@@ -49,6 +49,12 @@ backend/.env
 /build/
 /coverage/
 
+# Generated plugin registrant files - ignore all platforms
+**/generated_plugin_registrant.cc
+**/generated_plugin_registrant.h
+**/generated_plugins.cmake
+**/GeneratedPluginRegistrant.swift
+
 # Symbolication related
 app.*.symbols
 
