@@ -37,7 +37,7 @@ class MainApp extends StatelessWidget {
         '/about':           (context) => AboutScreen(),
         '/insurance-state': (context) => const InsuranceStatePage(),
         '/cart':            (context) => const CartPage(),
-        // Placeholder routes for future implementation
+        // Placeholder routes for future   implementation
         '/sales':                (context) => const StatesScreen(),
         '/broker':               (context) => const StatesScreen(),
         '/dre-ce':               (context) => const StatesScreen(),

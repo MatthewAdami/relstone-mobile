@@ -27,7 +27,7 @@ class _ContactScreenState extends State<ContactScreen> {
     super.dispose();
   }
 
-  // Brand colors (same as HomeScreen)
+  // Brand colors   (same as HomeScreen)
   static const Color primaryNavy = Color(0xFF1A3A5C);
   static const Color accentBlue = Color(0xFF2E7EBE);
   static const Color textDark = Color(0xFF1C2B3A);

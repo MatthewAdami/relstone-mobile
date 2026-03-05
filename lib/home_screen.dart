@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Brand colors
+  // Brand   colors
   static const Color primaryNavy = Color(0xFF1A3A5C);
   static const Color accentBlue  = Color(0xFF2E7EBE);
   static const Color textDark    = Color(0xFF1C2B3A);
