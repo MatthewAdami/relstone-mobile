@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:relstone_mobile/home_screen.dart';
 
 class ContactScreen extends StatelessWidget {
-  const ContactScreen({Key? key}) : super(key: key);
+  const ContactScreen({super.key});
 
   // Brand colors (same as HomeScreen)
   static const Color primaryNavy = Color(0xFF1A3A5C);

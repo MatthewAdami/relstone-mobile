@@ -152,6 +152,113 @@ app.get(`${API_PREFIX}/health`, (req, res) => {
 // ROUTES - PLACEHOLDER API ROUTES
 // ============================================================================
 
+function registerInsuranceRoutes(prefix) {
+  app.get(`${prefix}/insurance/states`, async (req, res) => {
+    if (!webDb) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Web database is not connected'
+      });
+    }
+
+    try {
+      const states = await webDb
+        .collection('states')
+        .find({})
+        .project({
+          _id: 0,
+          name: 1,
+          slug: 1,
+          heroTitle: 1,
+          providerInfo: 1,
+        })
+        .sort({ name: 1 })
+        .toArray();
+
+      return res.status(200).json({ states });
+    } catch (error) {
+      return res.status(500).json({
+        error: 'Database Error',
+        message: error.message,
+      });
+    }
+  });
+
+  app.get(`${prefix}/insurance/states/:slug`, async (req, res) => {
+    if (!webDb) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Web database is not connected'
+      });
+    }
+
+    const stateSlug = (req.params.slug || '').toLowerCase().trim();
+    if (!stateSlug) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'State slug is required'
+      });
+    }
+
+    try {
+      const state = await webDb.collection('states').findOne(
+        { slug: stateSlug },
+        {
+          projection: {
+            _id: 0,
+            name: 1,
+            slug: 1,
+            heroTitle: 1,
+            providerInfo: 1,
+            introBullets: 1,
+            ceBullets: 1,
+            requirements: 1,
+            examInstructions: 1,
+            metaDescription: 1,
+          }
+        }
+      );
+
+      if (!state) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: `State '${stateSlug}' not found`
+        });
+      }
+
+      const courses = await webDb
+        .collection('courses')
+        .find({ stateSlug, isActive: true })
+        .project({
+          _id: 0,
+          stateSlug: 1,
+          name: 1,
+          shortName: 1,
+          description: 1,
+          price: 1,
+          creditHours: 1,
+          courseType: 1,
+          hasPrintedTextbook: 1,
+          printedTextbookPrice: 1,
+          sortOrder: 1,
+        })
+        .sort({ sortOrder: 1, name: 1 })
+        .toArray();
+
+      return res.status(200).json({ state, courses });
+    } catch (error) {
+      return res.status(500).json({
+        error: 'Database Error',
+        message: error.message,
+      });
+    }
+  });
+}
+
+for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
+  registerInsuranceRoutes(prefix);
+}
+
 // Auth routes
 app.post(`${API_PREFIX}/auth/login`, (req, res) => {
   const { email, password } = req.body;

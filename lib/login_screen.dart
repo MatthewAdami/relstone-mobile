@@ -113,6 +113,18 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
+    if (result['needsVerification'] == true) {
+      Navigator.pushNamed(
+        context,
+        '/verify-email',
+        arguments: {
+          'userId': result['userId']?.toString(),
+          'email': _emailController.text.trim(),
+        },
+      );
+      return;
+    }
+
     setState(() {
       _errorMessage = result['message'] ?? 'Login failed. Please try again.';
     });
