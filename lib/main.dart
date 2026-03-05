@@ -47,7 +47,7 @@ class MainApp extends StatelessWidget {
         '/cfp-renewal':          (context) => const StatesScreen(),
       },
 
-      // ── Dynamic routes (arguments required) ───────────────────
+      // ── Dynamic routes  (arguments required) ───────────────────
       onGenerateRoute: (settings) {
         final name = settings.name ?? '';
 
