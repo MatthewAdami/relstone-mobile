@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -16,7 +20,7 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: bg,
 
-      // ✅ Sidebar / Drawer  (same as ContactScreen)
+      // ✅ Sidebar / Drawer    (same as ContactScreen)
       drawer: const _AboutAppSidebar(),
 
       // ✅ AppBar (same as ContactScreen)
@@ -180,8 +184,13 @@ class AboutScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // ✅ AT A GLANCE SECTION
-                Container(
+                // ✅ WRAP ALL CARD SECTIONS - Match widest card width
+                IntrinsicWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ✅ AT A GLANCE SECTION
+                      Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -298,35 +307,38 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Dynamic-sized cards (1 per row)
-                      Column(
-                        spacing: 16,
-                        children: [
-                          _FeatureCard(
-                            title: 'State Approved',
-                            description: 'All courses are officially approved by the California Department of Real Estate (DRE Sponsor #1035, Pre-License #S0199) and state insurance departments. Your completion is automatically reported to the appropriate licensing authority.',
-                          ),
-                          _FeatureCard(
-                            title: '100% Online',
-                            description: 'Study anywhere, anytime on any device. Our courses work on computers, tablets, and smartphones. No need to travel to a classroom – complete your continuing education from the comfort of your home or office.',
-                          ),
-                          _FeatureCard(
-                            title: 'Self-Paced Learning',
-                            description: 'Work at your own speed. There are no set class times or schedules. Log in and out as often as you like – your progress is automatically saved. Most students complete their courses in just a few days.',
-                          ),
-                          _FeatureCard(
-                            title: 'Instant Certificates',
-                            description: 'Download your certificate of completion immediately after passing your final exam. No waiting for mail delivery. For DRE courses, we electronically report your completion within 24-48 hours.',
-                          ),
-                          _FeatureCard(
-                            title: 'Money Back Guarantee',
-                            description: 'We stand behind our courses with a 30-day satisfaction guarantee. If you\'re not completely satisfied with your purchase, contact us within 30 days for a full refund – no questions asked.',
-                          ),
-                          _FeatureCard(
-                            title: 'Price Match Guarantee',
-                            description: 'We guarantee the lowest prices on all courses. If you find the same state-approved course for less elsewhere, we\'ll match that price. Quality education shouldn\'t break the bank.',
-                          ),
-                        ],
+                      // Dynamic-sized cards (1 per row) - all same width
+                      IntrinsicWidth(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 16,
+                          children: [
+                            _FeatureCard(
+                              title: 'State Approved',
+                              description: 'All courses are officially approved by the California Department of Real Estate (DRE Sponsor #1035, Pre-License #S0199) and state insurance departments. Your completion is automatically reported to the appropriate licensing authority.',
+                            ),
+                            _FeatureCard(
+                              title: '100% Online',
+                              description: 'Study anywhere, anytime on any device. Our courses work on computers, tablets, and smartphones. No need to travel to a classroom – complete your continuing education from the comfort of your home or office.',
+                            ),
+                            _FeatureCard(
+                              title: 'Self-Paced Learning',
+                              description: 'Work at your own speed. There are no set class times or schedules. Log in and out as often as you like – your progress is automatically saved. Most students complete their courses in just a few days.',
+                            ),
+                            _FeatureCard(
+                              title: 'Instant Certificates',
+                              description: 'Download your certificate of completion immediately after passing your final exam. No waiting for mail delivery. For DRE courses, we electronically report your completion within 24-48 hours.',
+                            ),
+                            _FeatureCard(
+                              title: 'Money Back Guarantee',
+                              description: 'We stand behind our courses with a 30-day satisfaction guarantee. If you\'re not completely satisfied with your purchase, contact us within 30 days for a full refund – no questions asked.',
+                            ),
+                            _FeatureCard(
+                              title: 'Price Match Guarantee',
+                              description: 'We guarantee the lowest prices on all courses. If you find the same state-approved course for less elsewhere, we\'ll match that price. Quality education shouldn\'t break the bank.',
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -517,8 +529,9 @@ class AboutScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -796,9 +809,36 @@ class _AboutAppSidebar extends StatelessWidget {
 
   static const Color navBg = Color(0xFF0B1A2A);
 
-  void _go(BuildContext context, String route) {
+  void _go(BuildContext context, String route) async {
     Navigator.pop(context); // close drawer
-    Navigator.pushNamed(context, route);
+
+    // Retrieve stored user data
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final userStr = prefs.getString('user');
+
+    Map<String, dynamic>? user;
+    if (userStr != null) {
+      try {
+        user = jsonDecode(userStr);
+      } catch (e) {
+        print('Error decoding user: $e');
+      }
+    }
+
+    // Navigate with arguments if user data exists
+    if (user != null && token != null) {
+      Navigator.pushNamed(
+        context,
+        route,
+        arguments: {
+          'user': user,
+          'token': token,
+        },
+      );
+    } else {
+      Navigator.pushNamed(context, route);
+    }
   }
 
   @override
@@ -990,8 +1030,6 @@ class _NavItem extends StatelessWidget {
 class _AboutFooterSection extends StatelessWidget {
   const _AboutFooterSection();
 
-  static const Color textMuted = Color(0xFF6B7E92);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1004,50 +1042,88 @@ class _AboutFooterSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.home_work_rounded, color: Colors.white),
-              const SizedBox(width: 10),
-              const Text(
-                "RELSTONE",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                ),
-              ),
+              Icon(Icons.home_work_rounded, color: Colors.white),
+              SizedBox(width: 10),
+              Text('RELSTONE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            "Providing quality education for\nCalifornia Real Estate and Insurance professionals.",
-            style: TextStyle(
-              color: Colors.white70,
-              height: 1.45,
-              fontSize: 13,
-            ),
+            'Providing quality education for California Real Estate and Insurance professionals.',
+            style: TextStyle(color: Colors.white70, height: 1.45, fontSize: 13),
           ),
           const SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          Row(
             children: [
-              _FooterChip("Contact Us", () {
-                Navigator.pushNamed(context, '/contact');
-              }),
-              _FooterChip("Privacy Policy", () {}),
-              _FooterChip("Refund Policy", () {}),
-              _FooterChip("Terms of Use", () {}),
+              _AboutSocialIcon(icon: FontAwesomeIcons.facebook, color: const Color(0xFF1877F2), label: 'Facebook', url: 'https://www.facebook.com/RelstoneSD'),
+              const SizedBox(width: 10),
+              _AboutSocialIcon(icon: FontAwesomeIcons.linkedin, color: const Color(0xFF0A66C2), label: 'LinkedIn', url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
+              const SizedBox(width: 10),
+              _AboutSocialIcon(icon: FontAwesomeIcons.xTwitter, color: const Color(0xFFE7E7E7), label: 'X / Twitter', url: 'https://twitter.com/relstone'),
+              const SizedBox(width: 10),
+              _AboutSocialIcon(icon: FontAwesomeIcons.tiktok, color: const Color(0xFFEE1D52), label: 'TikTok', url: 'https://tiktok.com/@relstone'),
+              const SizedBox(width: 10),
+              _AboutSocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram', url: 'https://instagram.com/relstone'),
             ],
           ),
           const SizedBox(height: 14),
           const Divider(color: Colors.white12),
           const SizedBox(height: 10),
-          const Text(
-            "© 2026 Relstone. All rights reserved.",
-            style: TextStyle(color: textMuted, fontSize: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _FooterChip('Contact Us', () => Navigator.pushNamed(context, '/contact')),
+              _FooterChip('Privacy Policy', () {}),
+              _FooterChip('Refund Policy', () {}),
+              _FooterChip('Terms of Use', () {}),
+            ],
           ),
+          const SizedBox(height: 14),
+          const Divider(color: Colors.white12),
+          const SizedBox(height: 10),
+          const Text('© 2026 Relstone. All rights reserved.',
+              style: TextStyle(color: Color(0xFF6B7E92), fontSize: 12)),
         ],
+      ),
+    );
+  }
+}
+
+/* ─── SOCIAL ICON ──────────────────────────────────────────────────── */
+class _AboutSocialIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String url;
+  const _AboutSocialIcon({required this.icon, required this.color, required this.label, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        onTap: () async {
+          final uri = Uri.parse(url);
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
+          } catch (_) {
+            await launchUrl(uri, mode: LaunchMode.platformDefault);
+          }
+        },
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            border: Border.all(color: color.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Center(child: FaIcon(icon, color: color, size: 17)),
+        ),
       ),
     );
   }
@@ -1082,7 +1158,6 @@ class _FooterChip extends StatelessWidget {
     );
   }
 }
-
 
 
 
