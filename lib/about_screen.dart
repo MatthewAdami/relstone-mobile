@@ -16,7 +16,7 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: bg,
 
-      // ✅ Sidebar / Drawer (same as ContactScreen)
+      // ✅ Sidebar / Drawer  (same as ContactScreen)
       drawer: const _AboutAppSidebar(),
 
       // ✅ AppBar (same as ContactScreen)

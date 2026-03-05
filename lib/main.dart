@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignUpScreen(),
-        '/homescreen': (context) => const HomeScreen(),  // 👈 using HomeScreen instead of SignUpScreen
+        '/homescreen': (context) => const HomeScreen(),  // 👈 using HomeScreen  instead of SignUpScreen
         '/verify-email': (context) => const VerifyEmailScreen(),
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/states': (context) => const StatesScreen(),
