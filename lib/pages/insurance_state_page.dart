@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../config/api_config.dart';
 import '../services/api_client.dart';
 import '../services/cart_service.dart';
+import '../widgets/main_layout.dart';
+import '../widgets/app_drawer.dart';
 
 class InsuranceStatePage extends StatefulWidget {
   final String? initialSlug;
@@ -198,14 +200,15 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
     final stateName = (_stateData?['name'] ?? 'Insurance') as String;
 
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return MainLayout(
+        drawer: const AppDrawer(),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('State Details')),
+      return MainLayout(
+        drawer: const AppDrawer(),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -216,8 +219,8 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
     }
 
     if (_slug == null || _slug!.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Insurance CE')),
+      return MainLayout(
+        drawer: const AppDrawer(),
         body: const Center(
           child: Padding(
             padding: EdgeInsets.all(16),
@@ -228,8 +231,8 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
     }
 
     if (_stateData == null || _stateData!.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('State Details')),
+      return MainLayout(
+        drawer: const AppDrawer(),
         body: const Center(child: Text('No state data found.')),
       );
     }
@@ -243,11 +246,8 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
         <String, dynamic>{};
     final examOnline = _stringList(exam['online']);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F8FB),
-      appBar: AppBar(
-        title: Text('$stateName Insurance CE'),
-      ),
+    return MainLayout(
+      drawer: const AppDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

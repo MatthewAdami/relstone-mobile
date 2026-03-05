@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../config/api_config.dart';
 import '../services/api_client.dart';
+import '../services/cart_service.dart';
+import '../widgets/main_layout.dart';
+import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,45 +18,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bg,
-
-      // ✅ Sidebar / Drawer
-      drawer: const _AppSidebar(),
-
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/relstone_logo.png',
-              height: 28,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Text(
-                'RELSTONE',
-                style: TextStyle(
-                  color: primaryNavy,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        // ✅ Shopping cart (replaces Log In / Sign Up)
-        actions: [
-          IconButton(
-            tooltip: "Cart",
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
-
+    return MainLayout(
+      drawer: const AppDrawer(),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
