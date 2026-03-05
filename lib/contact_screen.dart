@@ -1,8 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
 
-class ContactScreen extends StatelessWidget {
+class ContactScreen extends StatefulWidget {
   const ContactScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ContactScreen> createState() => _ContactScreenState();
+}
+
+class _ContactScreenState extends State<ContactScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+  bool _hasAttemptedSubmit = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
 
   // Brand colors (same as HomeScreen)
   static const Color primaryNavy = Color(0xFF1A3A5C);
@@ -10,6 +29,100 @@ class ContactScreen extends StatelessWidget {
   static const Color textDark = Color(0xFF1C2B3A);
   static const Color textMuted = Color(0xFF6B7E92);
   static const Color bg = Color(0xFFF4F6F9);
+
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    return null;
+  }
+
+  String? _emailValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+
+    final email = value.trim();
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    if (!emailRegex.hasMatch(email)) {
+      return 'Please enter a valid email address';
+    }
+
+    return null;
+  }
+
+  void _resetContactForm() {
+    _formKey.currentState?.reset();
+    _nameController.clear();
+    _emailController.clear();
+    _messageController.clear();
+    setState(() {
+      _hasAttemptedSubmit = false;
+    });
+  }
+
+  Future<void> _showSuccessDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          title: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: accentBlue.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: accentBlue, size: 20),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Message Sent',
+                style: TextStyle(
+                  color: primaryNavy,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Your message has been sent successfully.',
+            style: TextStyle(
+              color: textDark,
+              fontSize: 14,
+              height: 1.45,
+            ),
+          ),
+          actions: [
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: accentBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (mounted) {
+      _resetContactForm();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -285,86 +398,113 @@ class ContactScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Send Us a Message',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: primaryNavy,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              letterSpacing: -0.5,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Send Us a Message',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: primaryNavy,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                letterSpacing: -0.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Have a question or feedback? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: textDark,
-                              fontSize: 14,
-                              height: 1.6,
-                              fontWeight: FontWeight.w400,
+                            const SizedBox(height: 16),
+                            Text(
+                              'Have a question or feedback? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: textDark,
+                                fontSize: 14,
+                                height: 1.6,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 32),
+                            const SizedBox(height: 32),
 
-                          // Name Field
-                          _CustomTextField(
-                            label: 'Full Name',
-                            hint: 'John Doe',
-                          ),
-                          const SizedBox(height: 20),
+                            // Name Field
+                            _CustomTextField(
+                              label: 'Full Name',
+                              hint: 'John Doe',
+                              controller: _nameController,
+                              validator: _requiredValidator,
+                              autovalidateMode: _hasAttemptedSubmit
+                                  ? AutovalidateMode.onUserInteraction
+                                  : AutovalidateMode.disabled,
+                            ),
+                            const SizedBox(height: 20),
 
-                          // Email Field
-                          _CustomTextField(
-                            label: 'Email Address',
-                            hint: 'john@example.com',
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 20),
+                            // Email Field
+                            _CustomTextField(
+                              label: 'Email Address',
+                              hint: 'john@example.com',
+                              keyboardType: TextInputType.emailAddress,
+                              controller: _emailController,
+                              validator: _emailValidator,
+                              autovalidateMode: _hasAttemptedSubmit
+                                  ? AutovalidateMode.onUserInteraction
+                                  : AutovalidateMode.disabled,
+                            ),
+                            const SizedBox(height: 20),
 
-                          // Message Field
-                          _CustomTextField(
-                            label: 'Message',
-                            hint: 'Your message here...',
-                            maxLines: 5,
-                          ),
-                          const SizedBox(height: 28),
+                            // Message Field
+                            _CustomTextField(
+                              label: 'Message',
+                              hint: 'Your message here...',
+                              maxLines: 5,
+                              controller: _messageController,
+                              validator: _requiredValidator,
+                              autovalidateMode: _hasAttemptedSubmit
+                                  ? AutovalidateMode.onUserInteraction
+                                  : AutovalidateMode.disabled,
+                            ),
+                            const SizedBox(height: 28),
 
-                          // Submit Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Message sent! We\'ll get back to you soon.'),
-                                    backgroundColor: Color(0xFF2E7EBE),
-                                    duration: Duration(seconds: 2),
+                            // Submit Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  final isValid = _formKey.currentState?.validate() ?? false;
+                                  if (!isValid) {
+                                    setState(() {
+                                      _hasAttemptedSubmit = true;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Please fix the highlighted fields.'),
+                                        backgroundColor: Colors.redAccent,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  await _showSuccessDialog();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: accentBlue,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: accentBlue,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  elevation: 2,
                                 ),
-                                elevation: 2,
-                              ),
-                              child: Text(
-                                'Send Message',
-                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
+                                child: Text(
+                                  'Send Message',
+                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -691,12 +831,18 @@ class _CustomTextField extends StatelessWidget {
   final String hint;
   final int maxLines;
   final TextInputType keyboardType;
+  final TextEditingController controller;
+  final String? Function(String?)? validator;
+  final AutovalidateMode autovalidateMode;
 
   const _CustomTextField({
     required this.label,
     required this.hint,
+    required this.controller,
+    this.validator,
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
+    this.autovalidateMode = AutovalidateMode.disabled,
   });
 
   @override
@@ -719,7 +865,10 @@ class _CustomTextField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
+          controller: controller,
+          validator: validator,
+          autovalidateMode: autovalidateMode,
           maxLines: maxLines,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -728,6 +877,10 @@ class _CustomTextField extends StatelessWidget {
               color: textMuted,
               fontSize: 14,
               fontWeight: FontWeight.w400,
+            ),
+            errorStyle: const TextStyle(
+              color: Colors.redAccent,
+              fontSize: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -740,6 +893,14 @@ class _CustomTextField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: accentBlue, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             filled: true,
@@ -842,6 +1003,4 @@ class _LicenseInfoRow extends StatelessWidget {
     );
   }
 }
-
-
 
