@@ -1,3 +1,9 @@
+# Node.js dependencies
+node_modules/
+backend/node_modules/
+package-lock.json
+backend/package-lock.json
+
 # Miscellaneous
 *.class
 *.log
@@ -13,7 +19,10 @@
 migrate_working_dir/
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
 # Documentation files (specific local setup files only)
 CONNECTION_FIX_SUMMARY.md
 DEBUGGING_CONNECTION.md
@@ -43,7 +52,10 @@ backend/start-server.ps1
 backend/.env
 
 
+<<<<<<< HEAD
 >>>>>>> 1585d9b (Full UI of Contact Page)
+=======
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
 # IntelliJ related
 *.iml
 *.ipr

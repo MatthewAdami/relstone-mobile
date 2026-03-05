@@ -1,7 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
+=======
+import 'package:relstone_mobile/home__screen/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
+// ✅ add this import
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
 
 // ── Brand colors ──────────────────────────────────────────────────────
 const Color primaryNavy = Color(0xFF1A3A5C);
@@ -13,11 +20,16 @@ const Color errorRed    = Color(0xFFE05252);
 
 // ── Auth Service ──────────────────────────────────────────────────────
 class AuthService {
+<<<<<<< HEAD
   static const String baseUrl = 'http://10.0.2.2:5000/api';
 
   static Future<Map<String, dynamic>> login(String email, String password) async {
+=======
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
+      Uri.parse(ApiConfig.login),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
