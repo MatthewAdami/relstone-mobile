@@ -1,66 +1,40 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:http/http.dart' as http;
-import 'package:relstone_mobile/home_screen.dart';
+import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'services/auth_service.dart'; // ✅ add this import
+import '../config/api_config.dart';
+// ✅ add this import
 
 
 // ── Auth Service (inline for single-file convenience) ────────────────────────
 class AuthService {
-  // 🔁 AUTO-DETECT ENVIRONMENT - Works for both Windows & Android Emulator!
-  static String get baseUrl {
-    // Automatically select the correct API URL based on the platform
-    if (defaultTargetPlatform == TargetPlatform.windows) {
-      // Windows Desktop
-      return 'http://localhost:5000/api/v1';
-    } else if (defaultTargetPlatform == TargetPlatform.android) {
-      // Android Emulator (special IP for emulator to reach host machine)
-      return 'http://10.0.2.2:5000/api/v1';
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // iOS Simulator
-      return 'http://localhost:5000/api/v1';
-    }
-    // Fallback for other platforms or real devices
-    // TODO: For real devices, replace with your PC IP (e.g., http://192.168.1.100:5000/api/v1)
-    return 'http://localhost:5000/api/v1';
-  }
-
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 15));
+    final response = await http.post(
+      Uri.parse(ApiConfig.login),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
 
-      final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', data['token']);
-        await prefs.setString('user', jsonEncode(data['user']));
-        return {'success': true, 'user': data['user']};
-      } else if (response.statusCode == 403 && data['needsVerification'] == true) {
-        return {
-          'success': false,
-          'needsVerification': true,
-          'userId': data['userId'],
-          'message': data['message'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': data['message'] ?? 'Login failed. Please try again.',
-        };
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']);
+      await prefs.setString('user', jsonEncode(data['user']));
+      return {'success': true, 'user': data['user']};
+    } else if (response.statusCode == 403 && data['needsVerification'] == true) {
       return {
         'success': false,
-        'message': 'Cannot connect to the server. Check API URL and internet.',
-        'error': e.toString(),
+        'needsVerification': true,
+        'userId': data['userId'],
+        'message': data['message'],
+      };
+    } else {
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Login failed. Please try again.',
       };
     }
   }
@@ -454,18 +428,12 @@ class _LoginScreenState extends State<LoginScreen>
                                         tapTargetSize: MaterialTapTargetSize
                                             .shrinkWrap,
                                       ),
-                                      child: TextButton(
-                                        onPressed: () {
-                                          // Navigate to Forgot Password screen or call the appropriate function
-                                          Navigator.pushNamed(context, '/forgot-password');
-                                        },
-                                        child: const Text(
-                                          'Forgot password?',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: accentBlue,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                      child: const Text(
+                                        'Forgot password?',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: accentBlue,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ),
