@@ -12,6 +12,7 @@ import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
 import 'package:relstone_mobile/insurance_ce_screen.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -36,6 +37,7 @@ class MainApp extends StatelessWidget {
         '/states':          (context) => const StatesScreen(),
         '/contact':         (context) => const ContactScreen(),
         '/about':           (context) => AboutScreen(),
+        '/refund-policy':   (context) => const RefundPolicyScreen(),
         '/insurance-ce':    (context) => const InsuranceCEScreen(),
         '/insurance-state': (context) => const InsuranceCEScreen(),
         '/cart':            (context) => const CartPage(),

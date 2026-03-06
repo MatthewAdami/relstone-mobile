@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
@@ -627,7 +628,9 @@ class _ContactFooterSection extends StatelessWidget {
                 Navigator.pushNamed(context, '/contact');
               }),
               _FooterChip("Privacy Policy", () {}),
-              _FooterChip("Refund Policy", () {}),
+              _FooterChip("Refund Policy", () {
+                showRefundPolicyBottomSheet(context);
+              }),
               _FooterChip("Terms of Use", () {}),
             ],
           ),

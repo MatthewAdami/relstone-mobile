@@ -4,9 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
 
 class AboutScreen extends StatelessWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   // Brand colors (same as HomeScreen)
   static const Color primaryNavy = Color(0xFF1A3A5C);
@@ -1077,7 +1078,7 @@ class _AboutFooterSection extends StatelessWidget {
             children: [
               _FooterChip('Contact Us', () => Navigator.pushNamed(context, '/contact')),
               _FooterChip('Privacy Policy', () {}),
-              _FooterChip('Refund Policy', () {}),
+              _FooterChip('Refund Policy', () => showRefundPolicyBottomSheet(context)),
               _FooterChip('Terms of Use', () {}),
             ],
           ),
