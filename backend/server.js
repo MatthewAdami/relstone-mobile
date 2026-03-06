@@ -246,6 +246,19 @@ function registerInsuranceRoutes(prefix) {
           hasPrintedTextbook: 1,
           printedTextbookPrice: 1,
           sortOrder: 1,
+          longDescription: 1,
+          overview: 1,
+          courseTopics: 1,
+          topics: 1,
+          whatYoullLearn: 1,
+          whatYouWillLearn: 1,
+          learningOutcomes: 1,
+          courseDetails: 1,
+          details: 1,
+          courseDetailBullets: 1,
+          whoShouldTakeThisCourse: 1,
+          whoShouldTake: 1,
+          targetAudience: 1,
         })
         .sort({ sortOrder: 1, name: 1 })
         .toArray();
@@ -292,6 +305,19 @@ function registerInsuranceRoutes(prefix) {
           hasPrintedTextbook: 1,
           printedTextbookPrice: 1,
           sortOrder: 1,
+          longDescription: 1,
+          overview: 1,
+          courseTopics: 1,
+          topics: 1,
+          whatYoullLearn: 1,
+          whatYouWillLearn: 1,
+          learningOutcomes: 1,
+          courseDetails: 1,
+          details: 1,
+          courseDetailBullets: 1,
+          whoShouldTakeThisCourse: 1,
+          whoShouldTake: 1,
+          targetAudience: 1,
         })
         .sort({ sortOrder: 1, name: 1 })
         .toArray();

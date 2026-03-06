@@ -95,10 +95,12 @@ class _CartPageState extends State<CartPage> {
                             const SizedBox(height: 4),
                             Text('${item.stateName} • ${item.type}'),
                             const SizedBox(height: 4),
+                            Text('Quantity: ${item.quantity}'),
+                            const SizedBox(height: 4),
                             Text('Credit Hours: ${item.creditHours}'),
                             const SizedBox(height: 4),
                             Text(
-                              'Price: \$${_money(item.price + (item.withTextbook ? item.textbookPrice : 0))}',
+                              'Price: \$${_money((item.price + (item.withTextbook ? item.textbookPrice : 0)) * item.quantity)}',
                             ),
                             const SizedBox(height: 10),
                             Row(

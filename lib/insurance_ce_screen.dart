@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/services/insurance_service.dart';
+import 'package:relstone_mobile/services/cart_service.dart';
 import 'package:relstone_mobile/refund_policy_screen.dart';
 
 class InsuranceCEScreen extends StatefulWidget {
@@ -528,6 +529,7 @@ class _InsuranceCEScreenState extends State<InsuranceCEScreen> {
                                   stateLabel: pageTitle,
                                   stateData: _detailStateData,
                                   allCourses: _detailCourses,
+                                  stateSlug: _detailStateSlug,
                                 );
                               },
                             ),
@@ -1858,13 +1860,86 @@ class _InsuranceStateCourseCard extends StatelessWidget {
   final String stateLabel;
   final Map<String, dynamic> stateData;
   final List<Map<String, dynamic>> allCourses;
+  final String stateSlug;
 
   const _InsuranceStateCourseCard({
     required this.course,
     required this.stateLabel,
     required this.stateData,
     required this.allCourses,
+    required this.stateSlug,
   });
+
+  double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  String _fmtPrice(double value) => value.toStringAsFixed(2);
+
+  List<String> _toStringList(dynamic value) {
+    if (value is List) {
+      return value
+          .map((item) {
+            if (item is Map) {
+              for (final key in const ['text', 'title', 'name', 'label', 'description']) {
+                final candidate = item[key];
+                if (candidate != null && candidate.toString().trim().isNotEmpty) {
+                  return candidate.toString().trim();
+                }
+              }
+            }
+            return item.toString().trim();
+          })
+          .where((text) => text.isNotEmpty)
+          .toList();
+    }
+
+    if (value is Map) {
+      for (final key in const ['items', 'list', 'bullets', 'points']) {
+        final nested = _toStringList(value[key]);
+        if (nested.isNotEmpty) return nested;
+      }
+      return value.values
+          .map((item) => item.toString().trim())
+          .where((text) => text.isNotEmpty)
+          .toList();
+    }
+
+    if (value is String && value.trim().isNotEmpty) {
+      final parts = value
+          .split(RegExp(r'\n|\r|•'))
+          .map((text) => text.trim())
+          .where((text) => text.isNotEmpty)
+          .toList();
+      return parts.isEmpty ? [value.trim()] : parts;
+    }
+
+    return <String>[];
+  }
+
+  List<String> _firstNonEmptyList(Map<String, dynamic> source, List<String> keys) {
+    for (final key in keys) {
+      final result = _toStringList(source[key]);
+      if (result.isNotEmpty) return result;
+    }
+    return <String>[];
+  }
+
+  String _firstNonEmptyString(Map<String, dynamic> source, List<String> keys) {
+    for (final key in keys) {
+      final value = source[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return '';
+  }
 
   int _extractIncludedCount(String text) {
     final match = RegExp(r'includes?\s+(\d+)\s+approved\s+courses?', caseSensitive: false)
@@ -1912,6 +1987,11 @@ class _InsuranceStateCourseCard extends StatelessWidget {
     final textbookPrice = course['printedTextbookPrice'];
     final hasPrintedTextbook = course['hasPrintedTextbook'] == true;
     final shortName = (course['shortName'] ?? '').toString();
+    final courseId =
+      (course['_id'] ?? (shortName.isNotEmpty ? shortName : name)).toString();
+    final stateName = (stateData['name'] ?? stateLabel).toString();
+    final basePrice = _toDouble(price);
+    final textbookAddon = _toDouble(textbookPrice);
     final effectiveDescription =
         description.trim().isNotEmpty ? description : 'Online, self-paced.';
     final headlineLabel = stateLabel.toUpperCase();
@@ -1928,10 +2008,75 @@ class _InsuranceStateCourseCard extends StatelessWidget {
     final includedCourses = includedCount > 0
         ? relatedCourses.take(includedCount).toList()
         : relatedCourses.take(2).toList();
-    final benefits = _stateBenefits();
-    final steps = _howToCompleteSteps();
+    final descriptionFromDb = _firstNonEmptyString(course, const [
+      'description',
+      'longDescription',
+      'overview',
+    ]);
+    final courseTopics = _firstNonEmptyList(course, const [
+      'courseTopics',
+      'topics',
+    ]);
+    final whatYoullLearn = _firstNonEmptyList(course, const [
+      'whatYoullLearn',
+      'whatYouWillLearn',
+      'learningOutcomes',
+    ]);
+    final courseDetails = _firstNonEmptyList(course, const [
+      'courseDetails',
+      'details',
+      'courseDetailBullets',
+    ]);
+    final whoShouldTakeList = _firstNonEmptyList(course, const [
+      'whoShouldTakeThisCourse',
+      'whoShouldTake',
+      'targetAudience',
+    ]);
+    final whoShouldTakeText = _firstNonEmptyString(course, const [
+      'whoShouldTakeThisCourse',
+      'whoShouldTake',
+      'targetAudience',
+    ]);
+
+    final effectiveCourseTopics = courseTopics.isNotEmpty
+        ? courseTopics
+        : <String>[
+            if (courseType.trim().isNotEmpty) '$courseType principles and best practices',
+            if (creditHours.trim().isNotEmpty) '$creditHours approved CE credit hours',
+            'State-specific compliance requirements',
+            'Practical scenarios for real-world application',
+            'Course review and completion preparation',
+          ];
+
+    final effectiveWhatYoullLearn = whatYoullLearn.isNotEmpty
+        ? whatYoullLearn
+        : <String>[
+            'Understand key concepts covered in this course',
+            'Apply requirements to daily professional practice',
+            'Meet renewal requirements with confidence',
+            'Complete the course online at your own pace',
+          ];
+
+    final effectiveCourseDetails = courseDetails.isNotEmpty
+        ? courseDetails
+        : <String>[
+            if (courseType.trim().isNotEmpty) 'Format: $courseType',
+            if (creditHours.trim().isNotEmpty) 'Credit Hours: $creditHours',
+            'Access: 24/7 online, self-paced',
+            'Certificate: available after successful completion',
+          ];
+
+    final effectiveWhoShouldTake = whoShouldTakeList.isNotEmpty
+        ? whoShouldTakeList
+        : <String>[
+            whoShouldTakeText.isNotEmpty
+                ? whoShouldTakeText
+                : 'This course is designed for $stateName insurance professionals who need approved CE credit for license renewal.',
+          ];
 
     void showCourseDetails() {
+      final cart = CartService.instance;
+
       showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -1941,13 +2086,206 @@ class _InsuranceStateCourseCard extends StatelessWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
         ),
         builder: (ctx) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+          CartItem? existingItem;
+          for (final item in cart.items) {
+            if (item.id == courseId) {
+              existingItem = item;
+              break;
+            }
+          }
+
+          bool includeTextbook = existingItem?.withTextbook ?? false;
+          int quantity = existingItem?.quantity ?? 1;
+          bool inCart = existingItem != null;
+          bool isSubmitting = false;
+
+          return StatefulBuilder(
+            builder: (ctx, setSheetState) {
+              final unitPrice = basePrice + (includeTextbook ? textbookAddon : 0);
+              final totalPrice = unitPrice * quantity;
+
+              Future<void> onCartTap() async {
+                if (isSubmitting) return;
+                setSheetState(() => isSubmitting = true);
+                if (inCart) {
+                  await cart.removeFromCart(courseId);
+                } else {
+                  await cart.addToCart(
+                    CartItem(
+                      id: courseId,
+                      type: 'course',
+                      name: shortName.trim().isNotEmpty ? shortName : name,
+                      stateSlug: stateSlug,
+                      stateName: stateName,
+                      price: basePrice,
+                      creditHours: _toInt(creditHours),
+                      withTextbook: includeTextbook,
+                      textbookPrice: textbookAddon,
+                      quantity: quantity,
+                    ),
+                  );
+                }
+                setSheetState(() {
+                  inCart = cart.isInCart(courseId);
+                  isSubmitting = false;
+                });
+              }
+
+              return SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFD3DCE8)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (hasPrintedTextbook)
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                value: includeTextbook,
+                                onChanged: (value) {
+                                  setSheetState(() {
+                                    includeTextbook = value == true;
+                                  });
+                                },
+                                title: Text(
+                                  'Receive Printed Textbooks (+\$${_fmtPrice(textbookAddon)})',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                              ),
+                            Row(
+                              children: [
+                                const Text(
+                                  'Quantity',
+                                  style: TextStyle(
+                                    color: _InsuranceCEScreenState.primaryNavy,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0xFFD3DCE8)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        visualDensity: VisualDensity.compact,
+                                        onPressed: quantity > 1
+                                            ? () {
+                                                setSheetState(() {
+                                                  quantity -= 1;
+                                                });
+                                              }
+                                            : null,
+                                        icon: const Icon(Icons.remove),
+                                      ),
+                                      Text(
+                                        quantity.toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        visualDensity: VisualDensity.compact,
+                                        onPressed: quantity < 99
+                                            ? () {
+                                                setSheetState(() {
+                                                  quantity += 1;
+                                                });
+                                              }
+                                            : null,
+                                        icon: const Icon(Icons.add),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE9FFF2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0xFFA7E9C0)),
+                                  ),
+                                  child: Text(
+                                    '\$${_fmtPrice(totalPrice)}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF052E16),
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      FilledButton(
+                                        onPressed: isSubmitting ? null : onCartTap,
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor:
+                                              inCart ? const Color(0xFF0A7A5B) : const Color(0xFF1F49B6),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                        ),
+                                        child: Text(
+                                          isSubmitting
+                                              ? 'UPDATING...'
+                                              : (inCart ? 'UPDATE CART' : 'ADD TO CART'),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      if (inCart)
+                                        TextButton(
+                                          onPressed: isSubmitting
+                                              ? null
+                                              : () async {
+                                                  setSheetState(() => isSubmitting = true);
+                                                  await cart.removeFromCart(courseId);
+                                                  setSheetState(() {
+                                                    inCart = false;
+                                                    isSubmitting = false;
+                                                  });
+                                                },
+                                          child: const Text('Remove from cart'),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                     Text(
                       shortName.trim().isNotEmpty ? shortName : name,
                       style: const TextStyle(
@@ -1976,139 +2314,146 @@ class _InsuranceStateCourseCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      effectiveDescription,
-                      style: const TextStyle(
-                        color: _InsuranceCEScreenState.textMuted,
-                        fontSize: 14,
-                        height: 1.45,
+                    if (descriptionFromDb.isNotEmpty) ...[
+                      const Text(
+                        'Description',
+                        style: TextStyle(
+                          color: _InsuranceCEScreenState.primaryNavy,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        descriptionFromDb,
+                        style: const TextStyle(
+                          color: _InsuranceCEScreenState.textMuted,
+                          fontSize: 14,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Course Topics',
+                      style: TextStyle(
+                        color: _InsuranceCEScreenState.primaryNavy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    if (includedCourses.isNotEmpty) ...[
-                      const SizedBox(height: 18),
-                      const Text(
-                        'Courses Included',
-                        style: TextStyle(
-                          color: _InsuranceCEScreenState.primaryNavy,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ...includedCourses.map((item) {
-                        final itemName = (item['shortName'] ?? item['name'] ?? 'Course').toString();
-                        final itemDescription = (item['description'] ?? '').toString();
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• ', style: TextStyle(fontSize: 16)),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      itemName,
-                                      style: const TextStyle(
-                                        color: _InsuranceCEScreenState.primaryNavy,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    if (itemDescription.trim().isNotEmpty)
-                                      Text(
-                                        itemDescription,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: _InsuranceCEScreenState.textMuted,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                  ],
+                    const SizedBox(height: 10),
+                    ...effectiveCourseTopics.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('✓ ', style: TextStyle(color: Color(0xFF0A7A5B), fontWeight: FontWeight.w700)),
+                            Expanded(
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  color: _InsuranceCEScreenState.textMuted,
+                                  fontSize: 13,
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
-                    if (benefits.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Package Benefits',
-                        style: TextStyle(
-                          color: _InsuranceCEScreenState.primaryNavy,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      ...benefits.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('✓ ', style: TextStyle(color: Color(0xFF0A7A5B), fontWeight: FontWeight.w700)),
-                              Expanded(
-                                child: Text(
-                                  item,
-                                  style: const TextStyle(
-                                    color: _InsuranceCEScreenState.textMuted,
-                                    fontSize: 13,
-                                  ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'What You\'ll Learn',
+                      style: TextStyle(
+                        color: _InsuranceCEScreenState.primaryNavy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...effectiveWhatYoullLearn.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('✓ ', style: TextStyle(color: Color(0xFF0A7A5B), fontWeight: FontWeight.w700)),
+                            Expanded(
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  color: _InsuranceCEScreenState.textMuted,
+                                  fontSize: 13,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                    if (steps.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      const Text(
-                        'How to Complete',
-                        style: TextStyle(
-                          color: _InsuranceCEScreenState.primaryNavy,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Course Details',
+                      style: TextStyle(
+                        color: _InsuranceCEScreenState.primaryNavy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
-                      const SizedBox(height: 10),
-                      ...steps.asMap().entries.map(
-                        (entry) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 10,
-                                backgroundColor: const Color(0xFF0A7A5B),
-                                child: Text(
-                                  '${entry.key + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...effectiveCourseDetails.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('✓ ', style: TextStyle(color: Color(0xFF0A7A5B), fontWeight: FontWeight.w700)),
+                            Expanded(
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  color: _InsuranceCEScreenState.textMuted,
+                                  fontSize: 13,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  entry.value,
-                                  style: const TextStyle(
-                                    color: _InsuranceCEScreenState.textMuted,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Who Should Take This Course',
+                      style: TextStyle(
+                        color: _InsuranceCEScreenState.primaryNavy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...effectiveWhoShouldTake.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('• ', style: TextStyle(fontSize: 16)),
+                            Expanded(
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  color: _InsuranceCEScreenState.textMuted,
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     if (relatedCourses.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       const Text(
@@ -2156,10 +2501,15 @@ class _InsuranceStateCourseCard extends StatelessWidget {
                         );
                       }),
                     ],
-                  ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       );
