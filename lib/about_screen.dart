@@ -15,8 +15,16 @@ class AboutScreen extends StatelessWidget {
   static const Color textMuted = Color(0xFF6B7E92);
   static const Color bg = Color(0xFFF4F6F9);
 
+  Future<void> _callTollFree() async {
+    final uri = Uri.parse('tel:18008775445');
+    await launchUrl(uri);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       backgroundColor: bg,
 
@@ -58,490 +66,425 @@ class AboutScreen extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // About Us Header
+          // Website-style hero header
           Container(
             width: double.infinity,
-            color: const Color(0xFF1E3A5F), // Dark blue background
-            padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF071A2B), Color(0xFF143A5C)],
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(isMobile ? 10 : 20, isMobile ? 12 : 44, isMobile ? 10 : 20, isMobile ? 10 : 26),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'About Relstone',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 35,
-                    letterSpacing: 0.5,
+                  'ABOUT US',
+                  style: TextStyle(
+                    color: const Color(0xFF2EA7FF),
+                    fontSize: isMobile ? 9 : 20,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: isMobile ? 5 : 14),
                 Text(
-                  "California's Most Trusted Real Estate & Insurance Education Provider Since 1974",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  'Real Estate & Insurance\nSchools',
                   textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isMobile ? 20 : 64,
+                    fontWeight: FontWeight.w800,
+                    height: 1.02,
+                    letterSpacing: -1.1,
+                  ),
+                ),
+                SizedBox(height: isMobile ? 0 : 4),
+                Text(
+                  'Since 1978',
+                  style: TextStyle(
+                    color: const Color(0xFF2EA7FF),
+                    fontSize: isMobile ? 22 : 58,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1.0,
+                  ),
+                ),
+                SizedBox(height: isMobile ? 5 : 14),
+                Text(
+                  'Real Estate License Services - helping agents, brokers, adjusters, CFPs, and\nCPAs complete their continuing education for over 47 years.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: const Color(0xFFC5D4E3),
+                    fontSize: isMobile ? 8 : 28,
+                    height: isMobile ? 1.35 : 1.35,
+                  ),
+                ),
+                SizedBox(height: isMobile ? 8 : 22),
+                InkWell(
+                  onTap: _callTollFree,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 22, vertical: isMobile ? 7 : 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B4E70).withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.call, color: const Color(0xFF2EA7FF), size: isMobile ? 14 : 26),
+                        SizedBox(width: isMobile ? 5 : 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'CALL TOLL-FREE',
+                              style: TextStyle(
+                                color: const Color(0xFFAFC3D8),
+                                fontSize: isMobile ? 7 : 12,
+                                letterSpacing: 1.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 1),
+                            Text(
+                              '1-800-877-5445',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isMobile ? 12 : 32,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: isMobile ? 5 : 14),
+                Text(
+                  '7 Days a Week: 6 am-10 pm Pacific  ·  9 am-1 am Eastern',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: const Color(0xFF95AFC6), fontSize: isMobile ? 8 : 15),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
 
-          // Content area
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ✅ OUR STORY SECTION
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Our Story',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: primaryNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Relstone was founded in 1974 with a simple mission: provide high-quality, accessible professional education that helps real estate agents and insurance professionals succeed in their careers.',
-                        textAlign: TextAlign.justify,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: textDark,
-                          fontSize: 15,
-                          height: 1.6,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'For over 50 years, we have been at the forefront of continuing education in California. What started as a small classroom operation has grown into a comprehensive online learning platform serving thousands of students each year across more than 40 states.',
-                        textAlign: TextAlign.justify,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: textDark,
-                          fontSize: 15,
-                          height: 1.6,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Our team consists of licensed professionals, experienced educators, and industry experts who understand the challenges facing today\'s real estate and insurance professionals. We continuously update our course content to reflect the latest laws, regulations, and industry best practices.',
-                        textAlign: TextAlign.justify,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: textDark,
-                          fontSize: 15,
-                          height: 1.6,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'When you choose Relstone, you\'re not just buying a course – you\'re investing in your professional future with a company that has helped over 100,000 professionals maintain their licenses and advance their careers.',
-                        textAlign: TextAlign.justify,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: textDark,
-                          fontSize: 15,
-                          height: 1.6,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          Container(
+            color: const Color(0xFF071726),
+            padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12, horizontal: isMobile ? 8 : 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 700;
 
-                const SizedBox(height: 10),
-
-                // ✅ BLUE DIVIDER
-                Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, accentBlue, Colors.transparent],
+                if (isWide) {
+                  // Wide screen: single row with all 4 cards
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: const [
+                        Expanded(child: _StatBox(number: '47+', label: 'Years in Business')),
+                        SizedBox(width: 6),
+                        Expanded(child: _StatBox(number: '4M+', label: 'Courses Completed')),
+                        SizedBox(width: 6),
+                        Expanded(child: _StatBox(number: '47', label: 'States Served')),
+                        SizedBox(width: 6),
+                        Expanded(child: _StatBox(number: '1978', label: 'Founded')),
+                      ],
                     ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ WRAP ALL CARD SECTIONS - Match widest card width
-                IntrinsicWidth(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  );
+                } else {
+                  // Mobile: 2x2 grid
+                  return Column(
                     children: [
-                      // ✅ AT A GLANCE SECTION
-                      Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'At a Glance',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: primaryNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Responsive stat cards with equal size
-                      Column(
-                        children: [
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: _StatCard(
-                                    number: '50+',
-                                    label: 'Years in Business',
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _StatCard(
-                                    number: '100K+',
-                                    label: 'Students Served',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: _StatCard(
-                                    number: '40+',
-                                    label: 'States Covered',
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _StatCard(
-                                    number: '500+',
-                                    label: 'Course Options',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ BLUE DIVIDER
-                Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, accentBlue, Colors.transparent],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ WHY PROFESSIONALS CHOOSE RELSTONE SECTION
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Why Professionals Choose Relstone',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: primaryNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Dynamic-sized cards (1 per row) - all same width
-                      IntrinsicWidth(
-                        child: Column(
+                      IntrinsicHeight(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: 16,
-                          children: [
-                            _FeatureCard(
-                              title: 'State Approved',
-                              description: 'All courses are officially approved by the California Department of Real Estate (DRE Sponsor #1035, Pre-License #S0199) and state insurance departments. Your completion is automatically reported to the appropriate licensing authority.',
-                            ),
-                            _FeatureCard(
-                              title: '100% Online',
-                              description: 'Study anywhere, anytime on any device. Our courses work on computers, tablets, and smartphones. No need to travel to a classroom – complete your continuing education from the comfort of your home or office.',
-                            ),
-                            _FeatureCard(
-                              title: 'Self-Paced Learning',
-                              description: 'Work at your own speed. There are no set class times or schedules. Log in and out as often as you like – your progress is automatically saved. Most students complete their courses in just a few days.',
-                            ),
-                            _FeatureCard(
-                              title: 'Instant Certificates',
-                              description: 'Download your certificate of completion immediately after passing your final exam. No waiting for mail delivery. For DRE courses, we electronically report your completion within 24-48 hours.',
-                            ),
-                            _FeatureCard(
-                              title: 'Money Back Guarantee',
-                              description: 'We stand behind our courses with a 30-day satisfaction guarantee. If you\'re not completely satisfied with your purchase, contact us within 30 days for a full refund – no questions asked.',
-                            ),
-                            _FeatureCard(
-                              title: 'Price Match Guarantee',
-                              description: 'We guarantee the lowest prices on all courses. If you find the same state-approved course for less elsewhere, we\'ll match that price. Quality education shouldn\'t break the bank.',
-                            ),
+                          children: const [
+                            Expanded(child: _StatBox(number: '47+', label: 'Years in Business')),
+                            SizedBox(width: 6),
+                            Expanded(child: _StatBox(number: '4M+', label: 'Courses Completed')),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: const [
+                            Expanded(child: _StatBox(number: '47', label: 'States Served')),
+                            SizedBox(width: 6),
+                            Expanded(child: _StatBox(number: '1978', label: 'Founded')),
                           ],
                         ),
                       ),
                     ],
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ BLUE DIVIDER
-                Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, accentBlue, Colors.transparent],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ OUR COURSES SECTION
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Our Courses',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: primaryNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // California Real Estate Section
-                      Text(
-                        'California Real Estate',
-                        style: const TextStyle(
-                          color: primaryNavy,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'We offer complete packages for real estate professionals including:',
-                        textAlign: TextAlign.justify,
-                        style: const TextStyle(
-                          color: textDark,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _CourseListItem('Sales License Pre-Licensing Courses'),
-                      _CourseListItem('Broker License Pre-Licensing Courses'),
-                      _CourseListItem('45-Hour Renewal CE Packages'),
-                      _CourseListItem('Individual CE Elective Courses'),
-                      _CourseListItem('State & National Exam Prep'),
-                      const SizedBox(height: 24),
-                      // Insurance Continuing Education Section
-                      Text(
-                        'Insurance Continuing Education',
-                        style: const TextStyle(
-                          color: primaryNavy,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Fulfill your license renewal requirements with our state-approved insurance CE courses covering:',
-                        textAlign: TextAlign.justify,
-                        style: const TextStyle(
-                          color: textDark,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _CourseListItem('Property & Casualty'),
-                      _CourseListItem('Life & Health'),
-                      _CourseListItem('Ethics Requirements'),
-                      _CourseListItem('State-Specific Topics'),
-                      _CourseListItem('Annuity Training'),
-                      const SizedBox(height: 20),
-                      Text(
-                        'All courses meet mandatory requirements set by state insurance departments.',
-                        textAlign: TextAlign.justify,
-                        style: const TextStyle(
-                          color: textDark,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ BLUE DIVIDER
-                Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, accentBlue, Colors.transparent],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ✅ OUR COMMITMENT SECTION
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Our Commitment',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: primaryNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'At Relstone, we believe continuing education should be convenient, affordable, and valuable. We\'re committed to:',
-                        textAlign: TextAlign.justify,
-                        style: const TextStyle(
-                          color: textDark,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          height: 1.6,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _CommitmentItem(
-                        title: 'Quality Content',
-                        description: 'Our courses are written by industry professionals and updated regularly to reflect current laws and best practices.',
-                      ),
-                      const SizedBox(height: 18),
-                      _CommitmentItem(
-                        title: 'Student Support',
-                        description: 'Our customer service team is available to help you with enrollment, technical issues, or any questions about your courses.',
-                      ),
-                      const SizedBox(height: 18),
-                      _CommitmentItem(
-                        title: 'Compliance',
-                        description: 'We ensure all courses meet or exceed state requirements so you can renew your license with confidence.',
-                      ),
-                      const SizedBox(height: 18),
-                      _CommitmentItem(
-                        title: 'Value',
-                        description: 'We offer competitive pricing, bundle discounts, and our price match guarantee to ensure you get the best value.',
-                      ),
-                    ],
-                  ),
-                ),
-                    ],
-                  ),
-                ),
-              ],
+                  );
+                }
+              },
             ),
           ),
 
-          const SizedBox(height: 22),
+          SizedBox(height: isMobile ? 20 : 28),
 
-          // ✅ Footer (same as ContactScreen)
+          // Three Info Cards
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 700;
+
+                if (isWide) {
+                  // Wide screen: single row with equal height
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _InfoCard(
+                            icon: Icons.school_rounded,
+                            title: 'How to Get Your CA Real Estate License',
+                            description: 'Complete state-approved courses online or with textbooks. We guide you through every step.',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _InfoCard(
+                            icon: Icons.star_rounded,
+                            title: '4+ Million Courses Completed',
+                            description: 'Using the most effective learning format to help you pass fast and succeed!',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _InfoCard(
+                            icon: Icons.emoji_events_rounded,
+                            title: 'Trusted Since 1974',
+                            description: '47+ years of proven success in insurance CE and CFP® certification courses.',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  // Mobile: stacked with same width
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _InfoCard(
+                        icon: Icons.school_rounded,
+                        title: 'How to Get Your CA Real Estate License',
+                        description: 'Complete state-approved courses online or with textbooks. We guide you through every step.',
+                      ),
+                      const SizedBox(height: 12),
+                      _InfoCard(
+                        icon: Icons.star_rounded,
+                        title: '4+ Million Courses Completed',
+                        description: 'Using the most effective learning format to help you pass fast and succeed!',
+                      ),
+                      const SizedBox(height: 12),
+                      _InfoCard(
+                        icon: Icons.emoji_events_rounded,
+                        title: 'Trusted Since 1974',
+                        description: '47+ years of proven success in insurance CE and CFP® certification courses.',
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Choose RELSTONE For Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _ChooseRelstoneSection(),
+          ),
+          const SizedBox(height: 24),
+
+          // Why We're the #1 Choice Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                // Section Header
+                Text(
+                  'Why We\'re the #1 Choice',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: const Color(0xFF1C2B3A),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Blue underline
+                Center(
+                  child: Container(
+                    width: 60,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4A9EE0),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Description
+                Text(
+                  'Have you checked how long most continuing education insurance schools have been in business? Most you\'ll find online have appeared fairly recently. But RELSTONE® has been helping insurance agents, adjusters, CFPs and CPAs to successfully complete insurance CE courses for the past 47 years!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF6B7E92),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Four Feature Cards in a grid
+                _WhyChooseGrid(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // New sections: Proven Effective & Since 1978
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 700;
+
+                if (isWide) {
+                  // Wide screen: side by side
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _DetailCard(
+                            icon: Icons.verified_user_rounded,
+                            title: 'Proven Effective',
+                            description: 'Since 1974, our courses have been used by hundreds of thousands to successfully complete their insurance CE. Over the last 47 years, our textbooks, courses, and exams have been extensively tested by professionals from 47 states. Our founder is a long-time educator and popular college professor — he created these courses himself and stands 100% behind every one.',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _DetailCard(
+                            icon: Icons.apartment_rounded,
+                            title: 'Since 1978 — San Diego, CA',
+                            description: 'Real Estate License Services (through C.E. Credits, Inc.) has been offering state-approved insurance license and CFP® certificate courses in 47 states and the District of Columbia. We\'ve also been helping California real estate agents and brokers get and renew their licenses for more than 43 years.',
+                            footerWidget: Container(
+                              margin: const EdgeInsets.only(top: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4A9EE0).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.location_on,
+                                    color: Color(0xFF4A9EE0),
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'San Diego, California — since 1978',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Color(0xFF4A9EE0),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  // Mobile: stacked
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _DetailCard(
+                        icon: Icons.verified_user_rounded,
+                        title: 'Proven Effective',
+                        description: 'Since 1974, our courses have been used by hundreds of thousands to successfully complete their insurance CE. Over the last 47 years, our textbooks, courses, and exams have been extensively tested by professionals from 47 states. Our founder is a long-time educator and popular college professor — he created these courses himself and stands 100% behind every one.',
+                      ),
+                      const SizedBox(height: 12),
+                      _DetailCard(
+                        icon: Icons.apartment_rounded,
+                        title: 'Since 1978 — San Diego, CA',
+                        description: 'Real Estate License Services (through C.E. Credits, Inc.) has been offering state-approved insurance license and CFP® certificate courses in 47 states and the District of Columbia. We\'ve also been helping California real estate agents and brokers get and renew their licenses for more than 43 years.',
+                        footerWidget: Container(
+                          margin: const EdgeInsets.only(top: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4A9EE0).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.location_on,
+                                color: Color(0xFF4A9EE0),
+                                size: 16,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'San Diego, California — since 1978',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Color(0xFF4A9EE0),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Testimonials (static data)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: _TestimonialsSection(),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Footer
           const _AboutFooterSection(),
-
-          const SizedBox(height: 10), // Add bottom padding to footer
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -549,253 +492,924 @@ class AboutScreen extends StatelessWidget {
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* FEATURE CARD COMPONENT */
+/* STAT BOX COMPONENT (for hero section) */
 /* ───────────────────────────────────────────────────────────── */
 
-class _FeatureCard extends StatefulWidget {
+class _StatBox extends StatefulWidget {
+  final String number;
+  final String label;
+
+  const _StatBox({
+    required this.number,
+    required this.label,
+  });
+
+  @override
+  State<_StatBox> createState() => _StatBoxState();
+}
+
+class _StatBoxState extends State<_StatBox> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        height: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: isMobile ? 12 : 18, horizontal: isMobile ? 8 : 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(_isHovered ? 0.15 : 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white.withOpacity(_isHovered ? 0.4 : 0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.number,
+              style: TextStyle(
+                color: const Color(0xFF4A9EE0),
+                fontSize: isMobile ? 20 : 28,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.8,
+              ),
+            ),
+            SizedBox(height: isMobile ? 3 : 4),
+            Text(
+              widget.label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isMobile ? 10 : 12,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* INFO CARD COMPONENT (3 cards below stats) */
+/* ───────────────────────────────────────────────────────────── */
+
+class _InfoCard extends StatefulWidget {
+  final IconData icon;
   final String title;
   final String description;
 
-  const _FeatureCard({
+  const _InfoCard({
+    required this.icon,
     required this.title,
     required this.description,
   });
 
   @override
-  State<_FeatureCard> createState() => _FeatureCardState();
+  State<_InfoCard> createState() => _InfoCardState();
 }
 
-class _FeatureCardState extends State<_FeatureCard> {
+class _InfoCardState extends State<_InfoCard> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryNavy = Color(0xFF1A3A5C);
-    const Color accentBlue = Color(0xFF2E7EBE);
-    const Color textDark = Color(0xFF1C2B3A);
-    const Color bg = Color(0xFFF4F6F9);
-
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFFE0E5EB),
+            color: _isHovered
+                ? const Color(0xFF4A9EE0).withOpacity(0.5)
+                : const Color(0xFFE0E5EB),
             width: 1,
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: accentBlue.withOpacity(0.15),
-                    blurRadius: 14,
+                    color: const Color(0xFF4A9EE0).withOpacity(0.2),
+                    blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFF4A9EE0).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                widget.icon,
+                color: const Color(0xFF4A9EE0),
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 14),
             Text(
               widget.title,
               style: const TextStyle(
-                color: accentBlue,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+                color: Color(0xFF1C2B3A),
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              widget.description,
+              style: const TextStyle(
+                color: Color(0xFF6B7E92),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* CHOOSE RELSTONE FOR SECTION */
+/* ───────────────────────────────────────────────────────────── */
+
+class _ChooseRelstoneSection extends StatelessWidget {
+  const _ChooseRelstoneSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+
+        if (isWide) {
+          // Wide screen: side by side
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF0B1A2A),
+                  const Color(0xFF1A3A5C),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Choose RELSTONE® For:',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Proven effective state-approved Insurance CE and CFP® Certificate courses for 47 states and District of Columbia. Convenient online or home study (with textbooks) — since 1974.',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Get your California Real Estate Salesperson or Broker License, or renew your license with Real Estate Continuing Education credits online or home study (with textbooks) — in San Diego since 1978.',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _ChecklistItem('Insurance License'),
+                      _ChecklistItem('CFP® Certificate'),
+                      _ChecklistItem('Real Estate License'),
+                      _ChecklistItem('CPA Renewal Courses'),
+                      _ChecklistItem('State Approved'),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  flex: 2,
+                  child: _LargeStatCard(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // Narrow screen: stacked with centered stat card
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF0B1A2A),
+                  const Color(0xFF1A3A5C),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Choose RELSTONE® For:',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Proven effective state-approved Insurance CE and CFP® Certificate courses for 47 states and District of Columbia. Convenient online or home study (with textbooks) — since 1974.',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Get your California Real Estate Salesperson or Broker License, or renew your license with Real Estate Continuing Education credits online or home study (with textbooks) — in San Diego since 1978.',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _ChecklistItem('Insurance License'),
+                _ChecklistItem('CFP® Certificate'),
+                _ChecklistItem('Real Estate License'),
+                _ChecklistItem('CPA Renewal Courses'),
+                _ChecklistItem('State Approved'),
+                const SizedBox(height: 20),
+                // Center the stat card on mobile
+                Center(
+                  child: _LargeStatCard(),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+class _ChecklistItem extends StatelessWidget {
+  final String text;
+
+  const _ChecklistItem(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.check_circle,
+            color: Color(0xFF4ADE80),
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LargeStatCard extends StatefulWidget {
+  const _LargeStatCard();
+
+  @override
+  State<_LargeStatCard> createState() => _LargeStatCardState();
+}
+
+class _LargeStatCardState extends State<_LargeStatCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: EdgeInsets.all(isMobile ? 20 : 26),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFF1E3A5C),
+              const Color(0xFF2A4A62),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF4A9EE0).withOpacity(0.3),
+            width: 1,
+          ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF4A9EE0).withOpacity(0.3),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              '4,000,000+',
+              style: TextStyle(
+                color: const Color(0xFF4A9EE0),
+                fontSize: isMobile ? 32 : 38,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -1.5,
+              ),
+            ),
+            SizedBox(height: isMobile ? 10 : 12),
+            Text(
+              'Courses Successfully Completed!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isMobile ? 15 : 17,
+                fontWeight: FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+            SizedBox(height: isMobile ? 8 : 10),
+            Text(
+              'Trusted by professionals nationwide since 1978',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: isMobile ? 11 : 12,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* WHY CHOOSE GRID COMPONENT */
+/* ───────────────────────────────────────────────────────────── */
+
+class _WhyChooseGrid extends StatelessWidget {
+  const _WhyChooseGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+
+        if (isWide) {
+          // Wide screen: 2x2 grid with equal height rows
+          return Column(
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _WhyChooseCard(
+                        icon: Icons.bolt_rounded,
+                        title: 'Easy',
+                        description: 'Easy to work at your own pace online courses (printed textbooks also available), and shorter exams.',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _WhyChooseCard(
+                        icon: Icons.check_circle_rounded,
+                        title: 'Effective',
+                        description: 'Learn at your own pace and easily re-read anything — with the most effective and fastest learning format!',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _WhyChooseCard(
+                        icon: Icons.attach_money_rounded,
+                        title: 'Affordable',
+                        description: 'We\'ll beat any advertised price.',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _WhyChooseCard(
+                        icon: Icons.headset_mic_rounded,
+                        title: '5-Star Customer Service',
+                        description: 'Call 1-800-877-5445 to speak directly with an experienced CE advisor. No phone menus — just real people.',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        } else {
+          // Narrow screen: single column with equal width cards
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _WhyChooseCard(
+                icon: Icons.bolt_rounded,
+                title: 'Easy',
+                description: 'Easy to work at your own pace online courses (printed textbooks also available), and shorter exams.',
+              ),
+              const SizedBox(height: 12),
+              _WhyChooseCard(
+                icon: Icons.check_circle_rounded,
+                title: 'Effective',
+                description: 'Learn at your own pace and easily re-read anything — with the most effective and fastest learning format!',
+              ),
+              const SizedBox(height: 12),
+              _WhyChooseCard(
+                icon: Icons.attach_money_rounded,
+                title: 'Affordable',
+                description: 'We\'ll beat any advertised price.',
+              ),
+              const SizedBox(height: 12),
+              _WhyChooseCard(
+                icon: Icons.headset_mic_rounded,
+                title: '5-Star Customer Service',
+                description: 'Call 1-800-877-5445 to speak directly with an experienced CE advisor. No phone menus — just real people.',
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* WHY CHOOSE CARD COMPONENT */
+/* ───────────────────────────────────────────────────────────── */
+
+class _WhyChooseCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+
+  const _WhyChooseCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  State<_WhyChooseCard> createState() => _WhyChooseCardState();
+}
+
+class _WhyChooseCardState extends State<_WhyChooseCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border(
+            top: BorderSide(
+              color: _isHovered
+                  ? const Color(0xFF4A9EE0)
+                  : const Color(0xFF4A9EE0),
+              width: _isHovered ? 4 : 3,
+            ),
+          ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF4A9EE0).withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Icon
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F2537),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                widget.icon,
+                color: const Color(0xFF4A9EE0),
+                size: 22,
+              ),
+            ),
+            const SizedBox(height: 14),
+            // Title
+            Text(
+              widget.title,
+              style: const TextStyle(
+                color: Color(0xFF1C2B3A),
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Description
+            Text(
+              widget.description,
+              style: const TextStyle(
+                color: Color(0xFF6B7E92),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* DETAIL CARD COMPONENT (for Proven Effective & Since 1978 sections) */
+/* ───────────────────────────────────────────────────────────── */
+
+class _DetailCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Widget? footerWidget;
+
+  const _DetailCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.footerWidget,
+  });
+
+  @override
+  State<_DetailCard> createState() => _DetailCardState();
+}
+
+class _DetailCardState extends State<_DetailCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _isHovered
+                ? const Color(0xFF4A9EE0).withOpacity(0.5)
+                : const Color(0xFFE0E5EB),
+            width: 1,
+          ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF4A9EE0).withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F2537),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                widget.icon,
+                color: const Color(0xFF4A9EE0),
+                size: 24,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.title,
+              style: const TextStyle(
+                color: Color(0xFF1C2B3A),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
                 letterSpacing: -0.3,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               widget.description,
-              textAlign: TextAlign.justify,
               style: const TextStyle(
-                color: textDark,
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/* ───────────────────────────────────────────────────────────── */
-/* STAT CARD COMPONENT */
-/* ───────────────────────────────────────────────────────────── */
-
-class _StatCard extends StatefulWidget {
-  final String number;
-  final String label;
-
-  const _StatCard({
-    required this.number,
-    required this.label,
-  });
-
-  @override
-  State<_StatCard> createState() => _StatCardState();
-}
-
-class _StatCardState extends State<_StatCard> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    const Color primaryNavy = Color(0xFF1A3A5C);
-    const Color accentBlue = Color(0xFF2E7EBE);
-    const Color bg = Color(0xFFF4F6F9);
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: const Color(0xFFE0E5EB),
-            width: 1,
-          ),
-          boxShadow: _isHovered
-              ? [
-                  BoxShadow(
-                    color: accentBlue.withOpacity(0.2),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : [],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              widget.number,
-              style: const TextStyle(
-                color: accentBlue,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: primaryNavy,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.2,
-                height: 1.3,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/* ───────────────────────────────────────────────────────────── */
-/* COURSE LIST ITEM COMPONENT */
-/* ───────────────────────────────────────────────────────────── */
-
-class _CourseListItem extends StatelessWidget {
-  final String text;
-
-  const _CourseListItem(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    const Color textDark = Color(0xFF1C2B3A);
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '•',
-            style: TextStyle(
-              color: textDark,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: textDark,
+                color: Color(0xFF6B7E92),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                height: 1.5,
+                height: 1.6,
               ),
+            ),
+            if (widget.footerWidget != null) ...[
+              const SizedBox(height: 16),
+              widget.footerWidget!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* TESTIMONIALS SECTION */
+/* ───────────────────────────────────────────────────────────── */
+
+class _TestimonialsSection extends StatelessWidget {
+  const _TestimonialsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <({String quote, String name, String location})>[
+      (
+        quote:
+            'Very thorough information for the insurance industry, and the staff at Relstone are extremely professional and helpful.',
+        name: 'Diana Miller Mccravy',
+        location: 'Villa Rica, GA'
+      ),
+      (
+        quote:
+            'Easy access and the printable book was easy to print as well. Whenever I had a question someone was always available to answer.',
+        name: 'Adrian J.',
+        location: 'Gretna, LA'
+      ),
+      (
+        quote:
+            'Relstone was very easy to use. Reasonably priced, 50-question exams - just the right length. Good website to get your continuing ed.',
+        name: 'Quentin Lazaro',
+        location: 'Lincoln, NE'
+      ),
+      (
+        quote:
+            'Have been using RELSTONE for my Insurance and CFP CEs for over 7 years and am very happy. Its friendly, clear and to the point.',
+        name: 'Placido Blanco',
+        location: 'Tampa, FL'
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+        return Column(
+          children: [
+            Text(
+              'See What Our Customers Say!',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: const Color(0xFF1C2B3A),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 56,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4A9EE0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Testimonials are dynamically loaded from customer reviews.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF6B7E92),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 18),
+            if (isWide)
+              Column(
+                children: [
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(child: _TestimonialCard(data: items[0])),
+                        const SizedBox(width: 12),
+                        Expanded(child: _TestimonialCard(data: items[1])),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(child: _TestimonialCard(data: items[2])),
+                        const SizedBox(width: 12),
+                        Expanded(child: _TestimonialCard(data: items[3])),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _TestimonialCard(data: items[0]),
+                  const SizedBox(height: 12),
+                  _TestimonialCard(data: items[1]),
+                  const SizedBox(height: 12),
+                  _TestimonialCard(data: items[2]),
+                  const SizedBox(height: 12),
+                  _TestimonialCard(data: items[3]),
+                ],
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _TestimonialCard extends StatelessWidget {
+  final ({String quote, String name, String location}) data;
+
+  const _TestimonialCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFDCE6EF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.format_quote, color: Color(0xFF9CCFF5), size: 30),
+          const SizedBox(height: 6),
+          const Text(
+            '★★★★★',
+            style: TextStyle(
+              color: Color(0xFFF59E0B),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            data.quote,
+            style: const TextStyle(
+              color: Color(0xFF1C2B3A),
+              fontSize: 14,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: Color(0xFFDCE6EF)),
+          const SizedBox(height: 10),
+          Text(
+            data.name,
+            style: const TextStyle(
+              color: Color(0xFF0F1F2E),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            data.location,
+            style: const TextStyle(
+              color: Color(0xFF6B7E92),
+              fontSize: 14,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-/* ───────────────────────────────────────────────────────────── */
-/* COMMITMENT ITEM COMPONENT */
-/* ───────────────────────────────────────────────────────────── */
-
-class _CommitmentItem extends StatelessWidget {
-  final String title;
-  final String description;
-
-  const _CommitmentItem({
-    required this.title,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const Color primaryNavy = Color(0xFF1A3A5C);
-    const Color textDark = Color(0xFF1C2B3A);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: primaryNavy,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          description,
-          textAlign: TextAlign.justify,
-          style: const TextStyle(
-            color: textDark,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            height: 1.5,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -1158,20 +1772,4 @@ class _FooterChip extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

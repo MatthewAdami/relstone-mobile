@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Web uses localhost, Android emulator uses 10.0.2.2.
-  // Backend is now running on port 3000
+  // Backend is now running on port 3002
   static String get baseUrl =>
-      kIsWeb ? "http://localhost:3000" : "http://10.0.2.2:3000";
+      kIsWeb ? "http://localhost:3002" : "http://10.0.2.2:3002";
 
   static const String apiPrefix = "/api/v1";
 
