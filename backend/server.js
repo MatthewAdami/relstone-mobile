@@ -8,6 +8,7 @@ const { MongoClient } = require('mongodb');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const API_PREFIX = process.env.API_PREFIX || '/api/v1';
+const LOG_HTTP_REQUESTS = process.env.LOG_HTTP_REQUESTS === 'true';
 
 // MongoDB connection configuration
 const mongoOptions = {
@@ -70,6 +71,10 @@ app.use((req, res, next) => {
 
 // Logging middleware
 app.use((req, res, next) => {
+  if (!LOG_HTTP_REQUESTS) {
+    return next();
+  }
+
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
@@ -253,6 +258,52 @@ function registerInsuranceRoutes(prefix) {
       });
     }
   });
+
+  // Frontend also requests courses directly by state slug.
+  app.get(`${prefix}/insurance/courses/:slug`, async (req, res) => {
+    if (!webDb) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Web database is not connected'
+      });
+    }
+
+    const stateSlug = (req.params.slug || '').toLowerCase().trim();
+    if (!stateSlug) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'State slug is required'
+      });
+    }
+
+    try {
+      const courses = await webDb
+        .collection('courses')
+        .find({ stateSlug, isActive: true })
+        .project({
+          _id: 0,
+          stateSlug: 1,
+          name: 1,
+          shortName: 1,
+          description: 1,
+          price: 1,
+          creditHours: 1,
+          courseType: 1,
+          hasPrintedTextbook: 1,
+          printedTextbookPrice: 1,
+          sortOrder: 1,
+        })
+        .sort({ sortOrder: 1, name: 1 })
+        .toArray();
+
+      return res.status(200).json({ stateSlug, courses });
+    } catch (error) {
+      return res.status(500).json({
+        error: 'Database Error',
+        message: error.message,
+      });
+    }
+  });
 }
 
 for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
@@ -260,171 +311,177 @@ for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
 }
 
 // Auth routes
-app.post(`${API_PREFIX}/auth/login`, (req, res) => {
-  const { email, password } = req.body;
+function registerAuthRoutes(prefix) {
+  app.post(`${prefix}/auth/login`, (req, res) => {
+    const { email, password } = req.body;
 
-  // Validation
-  if (!email || !password) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'Email and password are required'
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email and password are required'
+      });
+    }
+
+    // Mock authentication - accept any valid email/password combination
+    // In production, this would query the database and verify password hash
+    if (email && password.length >= 6) {
+      const mockToken = 'mock_jwt_token_' + Date.now();
+      const mockUser = {
+        id: '123456789',
+        email: email,
+        firstName: email.split('@')[0],
+        lastName: 'User',
+        createdAt: new Date().toISOString()
+      };
+
+      return res.status(200).json({
+        message: 'Login successful',
+        token: mockToken,
+        user: mockUser
+      });
+    }
+
+    // Invalid credentials
+    res.status(401).json({
+      error: 'Authentication Failed',
+      message: 'Invalid email or password'
     });
-  }
+  });
 
-  // Mock authentication - accept any valid email/password combination
-  // In production, this would query the database and verify password hash
-  if (email && password.length >= 6) {
-    const mockToken = 'mock_jwt_token_' + Date.now();
-    const mockUser = {
-      id: '123456789',
+  app.post(`${prefix}/auth/register`, (req, res) => {
+    const { firstName, lastName, email, password } = req.body;
+
+    // Validation
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'All fields are required'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Mock registration - in production, this would save to database
+    const mockUserId = 'user_' + Date.now();
+
+    return res.status(201).json({
+      message: 'Account created successfully. Please verify your email.',
+      userId: mockUserId,
+      email: email
+    });
+  });
+
+  app.post(`${prefix}/auth/logout`, (req, res) => {
+    // Mock logout - in production, this would invalidate token
+    res.status(200).json({
+      message: 'Logout successful'
+    });
+  });
+
+  app.post(`${prefix}/auth/verify-email`, (req, res) => {
+    const { userId, code } = req.body;
+
+    // Validation
+    if (!userId || !code) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'userId and code are required'
+      });
+    }
+
+    // Mock verification - accept any 6-digit code
+    if (code.length === 6 || code === '000000') {
+      return res.status(200).json({
+        message: 'Email verified successfully',
+        token: 'mock_jwt_token_' + Date.now(),
+        user: {
+          id: userId,
+          email: 'user@example.com',
+          firstName: 'User',
+          lastName: 'Name',
+          verified: true
+        }
+      });
+    }
+
+    res.status(400).json({
+      error: 'Verification Failed',
+      message: 'Invalid verification code'
+    });
+  });
+
+  app.post(`${prefix}/auth/resend-code`, (req, res) => {
+    const { userId, email } = req.body;
+
+    // Validation
+    if (!userId || !email) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'userId and email are required'
+      });
+    }
+
+    // Mock resend - in production, this would send email with new code
+    return res.status(200).json({
+      message: 'Verification code sent to your email',
       email: email,
-      firstName: email.split('@')[0],
-      lastName: 'User',
-      createdAt: new Date().toISOString()
-    };
+      expiresIn: 300 // 5 minutes
+    });
+  });
 
+  app.post(`${prefix}/auth/forgot-password`, (req, res) => {
+    const { email } = req.body;
+
+    // Validation
+    if (!email) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email is required'
+      });
+    }
+
+    // Mock password reset request
     return res.status(200).json({
-      message: 'Login successful',
-      token: mockToken,
-      user: mockUser
+      message: 'Password reset link sent to your email',
+      email: email
     });
-  }
-
-  // Invalid credentials
-  res.status(401).json({
-    error: 'Authentication Failed',
-    message: 'Invalid email or password'
   });
-});
 
-app.post(`${API_PREFIX}/auth/register`, (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+  app.post(`${prefix}/auth/reset-password`, (req, res) => {
+    const { email, code, newPassword } = req.body;
 
-  // Validation
-  if (!firstName || !lastName || !email || !password) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'All fields are required'
-    });
-  }
+    // Validation
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email, code, and newPassword are required'
+      });
+    }
 
-  if (password.length < 6) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'Password must be at least 6 characters'
-    });
-  }
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Password must be at least 6 characters'
+      });
+    }
 
-  // Mock registration - in production, this would save to database
-  const mockUserId = 'user_' + Date.now();
-
-  return res.status(201).json({
-    message: 'Account created successfully. Please verify your email.',
-    userId: mockUserId,
-    email: email
-  });
-});
-
-app.post(`${API_PREFIX}/auth/logout`, (req, res) => {
-  // Mock logout - in production, this would invalidate token
-  res.status(200).json({
-    message: 'Logout successful'
-  });
-});
-
-app.post(`${API_PREFIX}/auth/verify-email`, (req, res) => {
-  const { userId, code } = req.body;
-
-  // Validation
-  if (!userId || !code) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'userId and code are required'
-    });
-  }
-
-  // Mock verification - accept any 6-digit code
-  if (code.length === 6 || code === '000000') {
+    // Mock password reset
     return res.status(200).json({
-      message: 'Email verified successfully',
-      token: 'mock_jwt_token_' + Date.now(),
-      user: {
-        id: userId,
-        email: 'user@example.com',
-        firstName: 'User',
-        lastName: 'Name',
-        verified: true
-      }
+      message: 'Password reset successful',
+      email: email
     });
-  }
-
-  res.status(400).json({
-    error: 'Verification Failed',
-    message: 'Invalid verification code'
   });
-});
+}
 
-app.post(`${API_PREFIX}/auth/resend-code`, (req, res) => {
-  const { userId, email } = req.body;
-
-  // Validation
-  if (!userId || !email) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'userId and email are required'
-    });
-  }
-
-  // Mock resend - in production, this would send email with new code
-  return res.status(200).json({
-    message: 'Verification code sent to your email',
-    email: email,
-    expiresIn: 300 // 5 minutes
-  });
-});
-
-app.post(`${API_PREFIX}/auth/forgot-password`, (req, res) => {
-  const { email } = req.body;
-
-  // Validation
-  if (!email) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'Email is required'
-    });
-  }
-
-  // Mock password reset request
-  return res.status(200).json({
-    message: 'Password reset link sent to your email',
-    email: email
-  });
-});
-
-app.post(`${API_PREFIX}/auth/reset-password`, (req, res) => {
-  const { email, code, newPassword } = req.body;
-
-  // Validation
-  if (!email || !code || !newPassword) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'Email, code, and newPassword are required'
-    });
-  }
-
-  if (newPassword.length < 6) {
-    return res.status(400).json({
-      error: 'Validation Error',
-      message: 'Password must be at least 6 characters'
-    });
-  }
-
-  // Mock password reset
-  return res.status(200).json({
-    message: 'Password reset successful',
-    email: email
-  });
-});
+for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
+  registerAuthRoutes(prefix);
+}
 
 // Users routes
 app.get(`${API_PREFIX}/users`, (req, res) => {
