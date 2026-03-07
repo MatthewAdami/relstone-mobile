@@ -145,6 +145,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
         creditHours: _num(course['creditHours']).toInt(),
         withTextbook: _textbookSelections[id] ?? false,
         textbookPrice: _num(course['printedTextbookPrice']),
+        quantity: 1,
       ),
     );
   }
@@ -170,6 +171,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
         creditHours: _num(pkg['totalHours']).toInt(),
         withTextbook: false,
         textbookPrice: 0,
+        quantity: 1,
       ),
     );
   }

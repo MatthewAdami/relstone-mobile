@@ -1,62 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:relstone_mobile/home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../config/api_config.dart';
-// ✅ add this import
-
-
-// ── Auth Service (inline for single-file convenience) ────────────────────────
-class AuthService {
-  static Future<Map<String, dynamic>> login(
-      String email, String password) async {
-    final response = await http.post(
-      Uri.parse(ApiConfig.login),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']);
-      await prefs.setString('user', jsonEncode(data['user']));
-      return {'success': true, 'user': data['user']};
-    } else if (response.statusCode == 403 && data['needsVerification'] == true) {
-      return {
-        'success': false,
-        'needsVerification': true,
-        'userId': data['userId'],
-        'message': data['message'],
-      };
-    } else {
-      return {
-        'success': false,
-        'message': data['message'] ?? 'Login failed. Please try again.',
-      };
-    }
-  }
-
-  static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('user');
-  }
-
-  static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  static Future<Map<String, dynamic>?> getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userStr = prefs.getString('user');
-    if (userStr == null) return null;
-    return jsonDecode(userStr);
-  }
-}
+import 'package:relstone_mobile/services/auth_service.dart';
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 void main() {
@@ -166,6 +110,18 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (result['success'] == true) {
       Navigator.pushReplacementNamed(context, '/homescreen');
+      return;
+    }
+
+    if (result['needsVerification'] == true) {
+      Navigator.pushNamed(
+        context,
+        '/verify-email',
+        arguments: {
+          'userId': result['userId']?.toString(),
+          'email': _emailController.text.trim(),
+        },
+      );
       return;
     }
 
@@ -428,12 +384,18 @@ class _LoginScreenState extends State<LoginScreen>
                                         tapTargetSize: MaterialTapTargetSize
                                             .shrinkWrap,
                                       ),
-                                      child: const Text(
-                                        'Forgot password?',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: accentBlue,
-                                          fontWeight: FontWeight.w500,
+                                      child: TextButton(
+                                        onPressed: () {
+                                          // Navigate to Forgot Password screen or call the appropriate function
+                                          Navigator.pushNamed(context, '/forgot-password');
+                                        },
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: accentBlue,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ),
