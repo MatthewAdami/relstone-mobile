@@ -1,6 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
-import 'package:relstone_mobile/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+// ✅ add this import
+
+
+// ── Auth Service (inline for single-file convenience) ────────────────────────
+class AuthService {
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
+    final response = await http.post(
+      Uri.parse(ApiConfig.login),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']);
+      await prefs.setString('user', jsonEncode(data['user']));
+      return {'success': true, 'user': data['user']};
+    } else if (response.statusCode == 403 && data['needsVerification'] == true) {
+      return {
+        'success': false,
+        'needsVerification': true,
+        'userId': data['userId'],
+        'message': data['message'],
+      };
+    } else {
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Login failed. Please try again.',
+      };
+    }
+  }
+
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('user');
+  }
+
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  static Future<Map<String, dynamic>?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userStr = prefs.getString('user');
+    if (userStr == null) return null;
+    return jsonDecode(userStr);
+  }
+}
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 void main() {
@@ -92,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // ── Handle Login ──────────────────────────────────────────
-  void _handleLogin() async {
+ void _handleLogin() async {
   setState(() => _errorMessage = null);
 
   if (!_formKey.currentState!.validate()) return;
@@ -109,7 +165,22 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      Navigator.pushReplacementNamed(context, '/homescreen');
+      // ✅ Get token and user from SharedPreferences (saved by AuthService)
+      final prefs   = await SharedPreferences.getInstance();
+      final token   = prefs.getString('token') ?? '';
+      final userStr = prefs.getString('user') ?? '{}';
+      final user    = jsonDecode(userStr) as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(
+        context,
+        '/homescreen',
+        arguments: {
+          'user':  user,
+          'token': token,
+        },
+      );
       return;
     }
 
