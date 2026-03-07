@@ -11,12 +11,17 @@ import 'package:relstone_mobile/contact_screen.dart';
 import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
+<<<<<<< HEAD
 import 'package:relstone_mobile/all_products_screen.dart';
 import 'package:relstone_mobile/splash_screen.dart';
 import 'sales_license_screen.dart';
 import 'real_estate_ce_screen.dart';
 
 
+=======
+import 'package:relstone_mobile/insurance_ce_screen.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
+>>>>>>> 8902ad4c03a57d9bf40cf41846bba8cfa29b0909
 
 void main() {
   runApp(const MainApp());
@@ -41,15 +46,17 @@ class MainApp extends StatelessWidget {
         '/states':          (context) => const StatesScreen(),
         '/contact':         (context) => const ContactScreen(),
         '/about':           (context) => AboutScreen(),
-        '/insurance-state': (context) => const InsuranceStatePage(),
+        '/refund-policy':   (context) => const RefundPolicyScreen(),
+        '/insurance-ce':    (context) => const InsuranceCEScreen(),
+        '/insurance-state': (context) => const InsuranceCEScreen(),
         '/cart':            (context) => const CartPage(),
         // Placeholder routes for future   implementation
         '/sales':                (context) => const StatesScreen(),
         '/broker':               (context) => const StatesScreen(),
         '/dre-ce':               (context) => const StatesScreen(),
         '/exam-prep':            (context) => const StatesScreen(),
-        '/insurance-states':     (context) => const InsuranceStatePage(),
-        '/insurance-courses':    (context) => const StatesScreen(),
+        '/insurance-states':     (context) => const InsuranceCEScreen(),
+        '/insurance-courses':    (context) => const InsuranceCEScreen(),
         '/cfp-renewal':          (context) => const StatesScreen(),
         '/all-products': (context) => const AllProductsScreen(),
         '/':            (context) => const SplashScreen(), 

@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:relstone_mobile/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 // ✅ add this import
 
 
@@ -21,7 +21,6 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); 
       await prefs.setString('token', data['token']);
       await prefs.setString('user', jsonEncode(data['user']));
       return {'success': true, 'user': data['user']};
@@ -180,6 +179,18 @@ class _LoginScreenState extends State<LoginScreen>
         arguments: {
           'user':  user,
           'token': token,
+        },
+      );
+      return;
+    }
+
+    if (result['needsVerification'] == true) {
+      Navigator.pushNamed(
+        context,
+        '/verify-email',
+        arguments: {
+          'userId': result['userId']?.toString(),
+          'email': _emailController.text.trim(),
         },
       );
       return;
@@ -444,12 +455,18 @@ class _LoginScreenState extends State<LoginScreen>
                                         tapTargetSize: MaterialTapTargetSize
                                             .shrinkWrap,
                                       ),
-                                      child: const Text(
-                                        'Forgot password?',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: accentBlue,
-                                          fontWeight: FontWeight.w500,
+                                      child: TextButton(
+                                        onPressed: () {
+                                          // Navigate to Forgot Password screen or call the appropriate function
+                                          Navigator.pushNamed(context, '/forgot-password');
+                                        },
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: accentBlue,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ),

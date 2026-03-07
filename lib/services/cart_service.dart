@@ -13,6 +13,7 @@ class CartItem {
   final int creditHours;
   final bool withTextbook;
   final double textbookPrice;
+  final int quantity;
 
   const CartItem({
     required this.id,
@@ -24,11 +25,13 @@ class CartItem {
     required this.creditHours,
     required this.withTextbook,
     required this.textbookPrice,
+    this.quantity = 1,
   });
 
   CartItem copyWith({
     bool? withTextbook,
     double? textbookPrice,
+    int? quantity,
   }) {
     return CartItem(
       id: id,
@@ -40,6 +43,7 @@ class CartItem {
       creditHours: creditHours,
       withTextbook: withTextbook ?? this.withTextbook,
       textbookPrice: textbookPrice ?? this.textbookPrice,
+      quantity: quantity ?? this.quantity,
     );
   }
 
@@ -53,6 +57,7 @@ class CartItem {
         'creditHours': creditHours,
         'withTextbook': withTextbook,
         'textbookPrice': textbookPrice,
+        'quantity': quantity,
       };
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -72,6 +77,9 @@ class CartItem {
       textbookPrice: (json['textbookPrice'] is num)
           ? (json['textbookPrice'] as num).toDouble()
           : double.tryParse((json['textbookPrice'] ?? '0').toString()) ?? 0,
+      quantity: (json['quantity'] is num)
+          ? (json['quantity'] as num).toInt().clamp(1, 999)
+          : (int.tryParse((json['quantity'] ?? '1').toString()) ?? 1).clamp(1, 999),
     );
   }
 }
@@ -88,13 +96,14 @@ class CartService extends ChangeNotifier {
   List<CartItem> get items => List.unmodifiable(_items);
   bool get loaded => _loaded;
 
-  int get cartCount => _items.length;
+  int get cartCount => _items.fold(0, (sum, item) => sum + item.quantity);
   double get cartTotal => _items.fold(
         0,
-        (sum, item) => sum + item.price + (item.withTextbook ? item.textbookPrice : 0),
+        (sum, item) =>
+            sum + ((item.price + (item.withTextbook ? item.textbookPrice : 0)) * item.quantity),
       );
   int get totalCreditHours =>
-      _items.fold(0, (sum, item) => sum + item.creditHours);
+      _items.fold(0, (sum, item) => sum + (item.creditHours * item.quantity));
 
   bool isInCart(String id) => _items.any((item) => item.id == id);
 
