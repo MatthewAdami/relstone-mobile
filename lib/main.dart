@@ -11,6 +11,12 @@ import 'package:relstone_mobile/contact_screen.dart';
 import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
+import 'package:relstone_mobile/all_products_screen.dart';
+import 'package:relstone_mobile/splash_screen.dart';
+import 'sales_license_screen.dart';
+import 'real_estate_ce_screen.dart';
+
+
 
 void main() {
   runApp(const MainApp());
@@ -45,6 +51,10 @@ class MainApp extends StatelessWidget {
         '/insurance-states':     (context) => const InsuranceStatePage(),
         '/insurance-courses':    (context) => const StatesScreen(),
         '/cfp-renewal':          (context) => const StatesScreen(),
+        '/all-products': (context) => const AllProductsScreen(),
+        '/':            (context) => const SplashScreen(), 
+        '/sales-license': (context) => const SalesLicenseScreen(),
+        '/real-estate-ce': (context) => const RealEstateCEScreen(),
       },
 
       // ── Dynamic routes  (arguments required) ───────────────────

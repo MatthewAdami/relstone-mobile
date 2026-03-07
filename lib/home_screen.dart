@@ -4,8 +4,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'profile_screen.dart';
+import 'all_products_screen.dart'; // ✅ ADD THIS
 import '../config/api_config.dart';
 import '../services/api_client.dart';
+import 'sales_license_screen.dart';
+import 'real_estate_ce_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Brand    colors
+  // Brand colors
   static const Color primaryNavy = Color(0xFF1A3A5C);
   static const Color accentBlue  = Color(0xFF2E7EBE);
   static const Color textDark    = Color(0xFF1C2B3A);
@@ -26,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _user;
   String? _token;
 
+  // ── Search ────────────────────────────────────────────────
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -34,6 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _user  = args['user']  as Map<String, dynamic>?;
       _token = args['token'] as String?;
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   // ── Helpers ───────────────────────────────────────────────
@@ -68,6 +80,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _logout() {
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+  }
+
+  // ── Navigate to All Products with optional search query ───
+  void _goToAllProducts({String query = ''}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AllProductsScreen(initialSearch: query),
+      ),
+    );
+    _searchController.clear();
   }
 
   @override
@@ -121,84 +144,165 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView(
+     body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // ── Welcome banner ────────────────────────────────────
-          if (_user != null)
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          // ── Welcome banner (hidden) ───────────────────────────
+          // Uncomment below to show the welcome banner again
+          // if (_user != null)
+          //   Container(
+          //     margin: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //     decoration: BoxDecoration(
+          //       color: accentBlue.withOpacity(0.08),
+          //       borderRadius: BorderRadius.circular(12),
+          //       border: Border.all(color: accentBlue.withOpacity(0.2)),
+          //     ),
+          //     child: Row(
+          //       children: [
+          //         CircleAvatar(
+          //           radius: 20,
+          //           backgroundColor: primaryNavy,
+          //           child: Text(
+          //             _initials,
+          //             style: const TextStyle(
+          //               color: Colors.white,
+          //               fontSize: 14,
+          //               fontWeight: FontWeight.w700,
+          //             ),
+          //           ),
+          //         ),
+          //         const SizedBox(width: 12),
+          //         Expanded(
+          //           child: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             children: [
+          //               Text(
+          //                 'Welcome back, ${_userName.split(' ').first}!',
+          //                 style: const TextStyle(
+          //                   fontSize: 14,
+          //                   fontWeight: FontWeight.w700,
+          //                   color: primaryNavy,
+          //                 ),
+          //               ),
+          //               Text(_userEmail,
+          //                   style: const TextStyle(fontSize: 12, color: textMuted)),
+          //               Text(
+          //                 'ID: ${_user?['studentId'] ?? '—'}',
+          //                 style: const TextStyle(fontSize: 12, color: textMuted),
+          //               ),
+          //               Text(
+          //                 _user?['mobilePhone'] ?? '',
+          //                 style: const TextStyle(fontSize: 12, color: textMuted),
+          //               ),
+          //               Text(
+          //                 _user?['mailingAddress'] ?? '',
+          //                 style: const TextStyle(fontSize: 11, color: textMuted),
+          //                 maxLines: 2,
+          //                 overflow: TextOverflow.ellipsis,
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //         TextButton(
+          //           onPressed: _goToProfile,
+          //           style: TextButton.styleFrom(
+          //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //             backgroundColor: primaryNavy,
+          //             shape: RoundedRectangleBorder(
+          //                 borderRadius: BorderRadius.circular(8)),
+          //           ),
+          //           child: const Text(
+          //             'Profile',
+          //             style: TextStyle(
+          //                 color: Colors.white,
+          //                 fontSize: 12,
+          //                 fontWeight: FontWeight.w600),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+
+          // ── SEARCH BAR ────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: Container(
               decoration: BoxDecoration(
-                color: accentBlue.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: accentBlue.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: primaryNavy,
-                    child: Text(
-                      _initials,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome back, ${_userName.split(' ').first}!',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: primaryNavy,
-                          ),
-                        ),
-                        Text(_userEmail,
-                            style: const TextStyle(fontSize: 12, color: textMuted)),
-                        Text(
-                          'ID: ${_user?['studentId'] ?? '—'}',
-                          style: const TextStyle(fontSize: 12, color: textMuted),
-                        ),
-                        Text(
-                          _user?['mobilePhone'] ?? '',
-                          style: const TextStyle(fontSize: 12, color: textMuted),
-                        ),
-                        Text(
-                          _user?['mailingAddress'] ?? '',
-                          style: const TextStyle(fontSize: 11, color: textMuted),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _goToProfile,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      backgroundColor: primaryNavy,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text(
-                      'Profile',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600),
-                    ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryNavy.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
+              child: TextField(
+                controller: _searchController,
+                onSubmitted: (v) => _goToAllProducts(query: v.trim()),
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'Search courses, packages, states...',
+                  hintStyle: const TextStyle(color: textMuted, fontSize: 14),
+                  prefixIcon: const Icon(Icons.search_rounded, color: textMuted, size: 22),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () => _goToAllProducts(query: _searchController.text.trim()),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: primaryNavy,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Browse All',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: accentBlue, width: 1.5),
+                  ),
+                ),
+              ),
             ),
+          ),
+
+          // ── Quick Tags ────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                _QuickTag(label: '🗺️ All States', onTap: () => _goToAllProducts()),
+                _QuickTag(label: '📦 Packages',   onTap: () => _goToAllProducts(query: 'package')),
+                _QuickTag(label: '⚖️ Ethics',      onTap: () => _goToAllProducts(query: 'Ethics')),
+                _QuickTag(label: '📘 General',     onTap: () => _goToAllProducts(query: 'General')),
+              ],
+            ),
+          ),
 
           _HeroSection(onSalesLicense: () {}, onBrokerLicense: () {}),
           const SizedBox(height: 18),
@@ -227,6 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: 'Become an Agent',
                   subtitle: 'Get your California Real Estate Sales License',
                   cta: 'Get Started',
+                  
                 ),
                 SizedBox(height: 12),
                 _ServiceCard(
@@ -321,6 +426,35 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+// ── Quick Tag ─────────────────────────────────────────────────────────
+class _QuickTag extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _QuickTag({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF2E7EBE).withOpacity(0.4)),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF1A3A5C),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /* ─── SIDEBAR ──────────────────────────────────────────────────────── */
 class _AppSidebar extends StatelessWidget {
@@ -399,21 +533,41 @@ class _AppSidebar extends StatelessWidget {
             ),
 
             _NavExpansion(title: 'California Real Estate', children: [
-              _NavItem(title: 'Sales License',       onTap: () => _go(context, '/sales')),
+              _NavItem(
+                        title: 'Sales License',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SalesLicenseScreen()),
+                          );
+                        },
+                      ),
               _NavItem(title: 'Broker License',      onTap: () => _go(context, '/broker')),
-              _NavItem(title: '45 Hour DRE Renewal', onTap: () => _go(context, '/dre-ce')),
+              _NavItem(
+                        title: 'Real State CE',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RealEstateCEScreen()),
+                          );
+                        },
+                      ),
             ]),
-            _NavItem(title: 'Exam Prep',   onTap: () => _go(context, '/exam-prep')),
+            _NavItem(title: 'Exam Prep', onTap: () => _go(context, '/exam-prep')),
             _NavExpansion(title: 'Insurance CE', children: [
               _NavItem(title: 'Select a State', onTap: () => _go(context, '/insurance-state')),
-              _NavItem(title: 'Courses',        onTap: () => _go(context, '/insurance-courses')),
+              _NavItem(title: 'All Products',   onTap: () => _go(context, '/all-products')),
             ]),
             _NavItem(title: 'CFP Renewal', onTap: () => _go(context, '/cfp-renewal')),
             _NavItem(title: 'About Us',    onTap: () => _go(context, '/about')),
             _NavItem(title: 'Contact Us',  onTap: () => _go(context, '/contact')),
+            _NavItem(title: 'All Products',  onTap: () => _go(context, '/all-products')),
 
             const SizedBox(height: 10),
             const Divider(color: Colors.white12, height: 1),
+
             _NavItem(
               title: 'Log out',
               color: Colors.redAccent,
@@ -968,15 +1122,15 @@ class _FooterSection extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              _SocialIcon(icon: FontAwesomeIcons.facebook,  color: const Color(0xFF1877F2), label: 'Facebook',  url: 'https://www.facebook.com/RelstoneSD'),
+              _SocialIcon(icon: FontAwesomeIcons.facebook,  color: const Color(0xFF1877F2), label: 'Facebook',    url: 'https://www.facebook.com/RelstoneSD'),
               const SizedBox(width: 10),
-              _SocialIcon(icon: FontAwesomeIcons.linkedin,  color: const Color(0xFF0A66C2), label: 'LinkedIn',  url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
+              _SocialIcon(icon: FontAwesomeIcons.linkedin,  color: const Color(0xFF0A66C2), label: 'LinkedIn',    url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
               const SizedBox(width: 10),
               _SocialIcon(icon: FontAwesomeIcons.xTwitter,  color: const Color(0xFFE7E7E7), label: 'X / Twitter', url: 'https://twitter.com/relstone'),
               const SizedBox(width: 10),
-              _SocialIcon(icon: FontAwesomeIcons.tiktok,    color: const Color(0xFFEE1D52), label: 'TikTok',    url: 'https://tiktok.com/@relstone'),
+              _SocialIcon(icon: FontAwesomeIcons.tiktok,    color: const Color(0xFFEE1D52), label: 'TikTok',      url: 'https://tiktok.com/@relstone'),
               const SizedBox(width: 10),
-              _SocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram', url: 'https://instagram.com/relstone'),
+              _SocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram',   url: 'https://instagram.com/relstone'),
             ],
           ),
           const SizedBox(height: 14),

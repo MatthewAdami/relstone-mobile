@@ -21,6 +21,7 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); 
       await prefs.setString('token', data['token']);
       await prefs.setString('user', jsonEncode(data['user']));
       return {'success': true, 'user': data['user']};
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // ── Handle Login ──────────────────────────────────────────
-  void _handleLogin() async {
+ void _handleLogin() async {
   setState(() => _errorMessage = null);
 
   if (!_formKey.currentState!.validate()) return;
@@ -165,7 +166,22 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      Navigator.pushReplacementNamed(context, '/homescreen');
+      // ✅ Get token and user from SharedPreferences (saved by AuthService)
+      final prefs   = await SharedPreferences.getInstance();
+      final token   = prefs.getString('token') ?? '';
+      final userStr = prefs.getString('user') ?? '{}';
+      final user    = jsonDecode(userStr) as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(
+        context,
+        '/homescreen',
+        arguments: {
+          'user':  user,
+          'token': token,
+        },
+      );
       return;
     }
 
