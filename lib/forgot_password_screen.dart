@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'config/api_config.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -21,7 +23,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   static const Color successGreen = Color(0xFF2E9E6B);
 
   // ── API ────────────────────────────────────────────────────
-  static const String baseUrl = 'http://10.0.2.2:5000/api';
+  String get baseUrl => '${ApiConfig.baseUrl}${ApiConfig.apiPrefix}';
 
   // ── Step control (0 = email, 1 = code+password, 2 = success) ──
   int _step = 0;

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:relstone_mobile/home_screen.dart';
+import 'package:relstone_mobile/home__screen/home_screen.dart';
 import 'package:relstone_mobile/login_screen.dart';
+import 'package:relstone_mobile/pages/broker_license_page.dart';
 import 'package:relstone_mobile/pages/cart_page.dart';
 import 'package:relstone_mobile/pages/insurance_state_page.dart';
+import 'package:relstone_mobile/pages/sales_license_page.dart';
+import 'package:relstone_mobile/services/cart_service.dart';
 import 'package:relstone_mobile/sign_up_screen.dart';
 import 'package:relstone_mobile/verify_email_screen.dart';
+<<<<<<< HEAD
 import 'package:relstone_mobile/forgot_password_screen.dart';
 import 'package:relstone_mobile/states_screen.dart';
 import 'package:relstone_mobile/contact_screen.dart';
@@ -22,20 +26,40 @@ import 'real_estate_ce_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await cart.CartService.instance.ensureLoaded();
+=======
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await CartService.instance.ensureLoaded();
+>>>>>>> bf5053874a58d615f300be8afccf968de1531ec2
   runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    final name = settings.name ?? '';
+
+    if (name.startsWith('/insurance-state/')) {
+      final slug = name.substring('/insurance-state/'.length);
+      return MaterialPageRoute(
+        settings: settings,
+        builder: (_) => InsuranceStatePage(initialSlug: slug),
+      );
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
-
-      // ── Static routes ─────────────────────────────────────────
+      initialRoute: '/login',          // 👈 starting screen
+      onGenerateRoute: _onGenerateRoute,
       routes: {
+<<<<<<< HEAD
         '/login':           (context) => LoginScreen(),
         '/signup':          (context) => SignUpScreen(),
         '/homescreen':      (context) => const HomeScreen(),
@@ -102,6 +126,16 @@ class MainApp extends StatelessWidget {
           default:
             return MaterialPageRoute(builder: (_) => LoginScreen());
         }
+=======
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignUpScreen(),
+        '/homescreen': (context) => const HomeScreen(),  // 👈 using HomeScreen instead of SignUpScreen
+        '/insurance-state': (context) => const InsuranceStatePage(),
+        '/broker': (context) => const BrokerLicensePage(),
+        '/sales': (context) => const SalesLicensePage(),
+        '/cart': (context) => const CartPage(),
+        '/verify-email': (context) => const VerifyEmailScreen(),
+>>>>>>> bf5053874a58d615f300be8afccf968de1531ec2
       },
     );
   }

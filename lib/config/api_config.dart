@@ -1,26 +1,32 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConfig {
-  // Android emulator must use 10.0.2.2; web/desktop use localhost.
-  static String get baseUrl {
-    if (kIsWeb) return 'http://localhost:5000';
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5000';
+    static const String _envBaseUrl = String.fromEnvironment(
+        'API_BASE_URL',
+        defaultValue: '',
+    );
+
+    // URL rules:
+    // - Web + Windows/macOS/Linux + iOS simulator/device: localhost
+    // - Android emulator: 10.0.2.2 maps host loopback
+    // - API_BASE_URL (dart-define) overrides everything for remote/back-end hosts
+    static String get baseUrl {
+        if (_envBaseUrl.isNotEmpty) return _envBaseUrl;
+
+        if (kIsWeb) return 'http://localhost:5000';
+
+        return defaultTargetPlatform == TargetPlatform.android
+                ? 'http://10.0.2.2:5000'
+                : 'http://localhost:5000';
     }
-    return 'http://localhost:5000';
-  }
 
   static const String apiPrefix = "/api";
 
-  // Backend routes are served under /api in current local setup.
+  // ✅ Your Node routes (based on server.js: app.use('/api/auth', ...))
   static String get login => "$baseUrl$apiPrefix/auth/login";
   static String get register => "$baseUrl$apiPrefix/auth/register";
   static String get health => "$baseUrl$apiPrefix/health";
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
-  static String insuranceState(String slug) =>
-      "$baseUrl$apiPrefix/insurance/states/${Uri.encodeComponent(slug)}";
-  static String insuranceCourses(String slug) =>
-      "$baseUrl$apiPrefix/insurance/courses/${Uri.encodeComponent(slug)}";
-
-  static String insuranceStateFull(String slug) => insuranceState(slug);
+  static String insuranceStateFull(String slug) =>
+      "$baseUrl$apiPrefix/insurance/$slug/full";
 }
