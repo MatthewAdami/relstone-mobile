@@ -5,11 +5,12 @@ class InsuranceService {
   static Future<Map<String, dynamic>> fetchCoursesByStateSlug(
     String stateSlug,
   ) async {
-    final result = await ApiClient.get(ApiConfig.insuranceCourses(stateSlug));
+    final result = await ApiClient.get(ApiConfig.insuranceStateFull(stateSlug));
     final int status = result['statusCode'] as int;
-    final Map<String, dynamic> data = result['data'] as Map<String, dynamic>;
+    final Map<String, dynamic> data =
+        result['data'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
-    if (status != 200) {
+    if (status < 200 || status >= 300) {
       return {
         'success': false,
         'message': data['message'] ?? 'Unable to load courses',
@@ -17,17 +18,13 @@ class InsuranceService {
       };
     }
 
-    if (data['courses'] is List) {
-      return {
-        'success': true,
-        'courses': data['courses'] as List,
-      };
-    }
+    final full = _extractFullData(data);
+    final courses = full['courses'] is List ? full['courses'] as List : <dynamic>[];
 
-    if (data['success'] == true && data['data'] is List) {
+    if (courses.isNotEmpty) {
       return {
         'success': true,
-        'courses': data['data'] as List,
+        'courses': courses,
       };
     }
 
@@ -38,55 +35,40 @@ class InsuranceService {
   }
 
   static Future<Map<String, dynamic>> fetchStateWithCourses(String stateSlug) async {
-    final stateResult = await ApiClient.get(ApiConfig.insuranceState(stateSlug));
+    final stateResult = await ApiClient.get(ApiConfig.insuranceStateFull(stateSlug));
     final int stateStatus = stateResult['statusCode'] as int;
     final Map<String, dynamic> stateData =
-        stateResult['data'] as Map<String, dynamic>;
+        stateResult['data'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
-    if (stateStatus != 200) {
+    if (stateStatus < 200 || stateStatus >= 300) {
       return {
         'success': false,
         'message': stateData['message'] ?? 'Unable to load state data',
       };
     }
 
-    Map<String, dynamic> state = <String, dynamic>{};
-    List<dynamic> courses = <dynamic>[];
-
-    if (stateData['state'] is Map) {
-      state = (stateData['state'] as Map).cast<String, dynamic>();
-    }
-    if (stateData['courses'] is List) {
-      courses = stateData['courses'] as List;
-    }
-
-    if (state.isEmpty && stateData['success'] == true && stateData['data'] is Map) {
-      state = (stateData['data'] as Map).cast<String, dynamic>();
-    }
-
-    if (courses.isEmpty && stateData['success'] == true && stateData['data'] is List) {
-      courses = stateData['data'] as List;
-    }
-
-    if (courses.isEmpty) {
-      final coursesResult = await ApiClient.get(ApiConfig.insuranceCourses(stateSlug));
-      final int coursesStatus = coursesResult['statusCode'] as int;
-      final Map<String, dynamic> coursesData =
-          coursesResult['data'] as Map<String, dynamic>;
-
-      if (coursesStatus == 200) {
-        if (coursesData['courses'] is List) {
-          courses = coursesData['courses'] as List;
-        } else if (coursesData['success'] == true && coursesData['data'] is List) {
-          courses = coursesData['data'] as List;
-        }
-      }
-    }
+    final full = _extractFullData(stateData);
+    final state = full['state'] is Map
+        ? (full['state'] as Map).cast<String, dynamic>()
+        : <String, dynamic>{};
+    final courses = full['courses'] is List ? full['courses'] as List : <dynamic>[];
 
     return {
       'success': true,
       'state': state,
       'courses': courses,
     };
+  }
+
+  static Map<String, dynamic> _extractFullData(Map<String, dynamic> data) {
+    if (data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+
+    if (data['data'] is Map) {
+      return (data['data'] as Map).cast<String, dynamic>();
+    }
+
+    return data;
   }
 }
