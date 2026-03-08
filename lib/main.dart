@@ -5,10 +5,13 @@ import 'package:relstone_mobile/pages/broker_license_page.dart';
 import 'package:relstone_mobile/pages/cart_page.dart';
 import 'package:relstone_mobile/pages/insurance_state_page.dart';
 import 'package:relstone_mobile/pages/sales_license_page.dart';
+import 'package:relstone_mobile/services/cart_service.dart';
 import 'package:relstone_mobile/sign_up_screen.dart';
 import 'package:relstone_mobile/verify_email_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await CartService.instance.ensureLoaded();
   runApp(const MainApp());
 }
 

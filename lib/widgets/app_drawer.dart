@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/api_config.dart';
 import '../services/api_client.dart';
+import '../services/auth_service.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -116,6 +117,7 @@ class AppDrawer extends StatelessWidget {
               color: Colors.redAccent,
               onTap: () async {
                 Navigator.pop(context);
+                await AuthService.logout();
                 Navigator.pushReplacementNamed(context, '/login');
               },
             ),
