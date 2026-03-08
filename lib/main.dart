@@ -10,20 +10,18 @@ import 'package:relstone_mobile/states_screen.dart';
 import 'package:relstone_mobile/contact_screen.dart';
 import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
-import 'package:relstone_mobile/checkout_screen.dart';
-<<<<<<< HEAD
+import 'package:relstone_mobile/checkout_screen.dart' as checkout;
+import 'package:relstone_mobile/services/cart_service.dart' as cart;
 import 'package:relstone_mobile/all_products_screen.dart';
 import 'package:relstone_mobile/splash_screen.dart';
+import 'package:relstone_mobile/insurance_ce_screen.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
 import 'sales_license_screen.dart';
 import 'real_estate_ce_screen.dart';
 
-
-=======
-import 'package:relstone_mobile/insurance_ce_screen.dart';
-import 'package:relstone_mobile/refund_policy_screen.dart';
->>>>>>> 8902ad4c03a57d9bf40cf41846bba8cfa29b0909
-
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await cart.CartService.instance.ensureLoaded();
   runApp(const MainApp());
 }
 
@@ -92,8 +90,8 @@ class MainApp extends StatelessWidget {
           case '/checkout': {
             final args = settings.arguments as Map<String, dynamic>?;
             return MaterialPageRoute(
-              builder: (_) => CheckoutScreen(
-                cartItems:        (args?['cartItems']        as List<CartItem>?) ?? [],
+              builder: (_) => checkout.CheckoutScreen(
+                cartItems: _toCheckoutItems(args?['cartItems']),
                 cartTotal:        (args?['cartTotal']        as double?)         ?? 0.0,
                 totalCreditHours: (args?['totalCreditHours'] as int?)            ?? 0,
                 clearCart:        (args?['clearCart']        as VoidCallback?)   ?? () {},
@@ -107,4 +105,52 @@ class MainApp extends StatelessWidget {
       },
     );
   }
+}
+
+List<checkout.CartItem> _toCheckoutItems(dynamic rawItems) {
+  if (rawItems is! List) return const [];
+
+  return rawItems.where((e) => e != null).map((e) {
+    if (e is checkout.CartItem) {
+      return e;
+    }
+
+    if (e is cart.CartItem) {
+      return checkout.CartItem(
+        id: e.id,
+        name: e.name,
+        type: e.type,
+        price: e.price,
+        creditHours: e.creditHours,
+        withTextbook: e.withTextbook,
+        textbookPrice: e.textbookPrice,
+      );
+    }
+
+    if (e is Map) {
+      final map = Map<String, dynamic>.from(e);
+      return checkout.CartItem(
+        id: (map['id'] ?? '').toString(),
+        name: (map['name'] ?? '').toString(),
+        type: (map['type'] ?? '').toString(),
+        price: (map['price'] is num)
+            ? (map['price'] as num).toDouble()
+            : double.tryParse((map['price'] ?? '0').toString()) ?? 0,
+        creditHours: (map['creditHours'] is num)
+            ? (map['creditHours'] as num).toInt()
+            : int.tryParse((map['creditHours'] ?? '0').toString()) ?? 0,
+        withTextbook: map['withTextbook'] == true,
+        textbookPrice: (map['textbookPrice'] is num)
+            ? (map['textbookPrice'] as num).toDouble()
+            : double.tryParse((map['textbookPrice'] ?? '0').toString()) ?? 0,
+      );
+    }
+
+    return const checkout.CartItem(
+      id: '',
+      name: '',
+      type: '',
+      price: 0,
+    );
+  }).where((item) => item.id.isNotEmpty).toList();
 }
