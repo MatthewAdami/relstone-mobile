@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:relstone_mobile/widgets/app_drawer.dart';
+import 'package:relstone_mobile/widgets/sidebar.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({Key? key}) : super(key: key);
@@ -17,7 +17,7 @@ class ContactScreen extends StatelessWidget {
       backgroundColor: bg,
 
       // ✅ Sidebar / Drawer (shared widget)
-      drawer: const AppDrawer(),
+      drawer: const Sidebar(),
 
       // ✅ AppBar (same as HomeScreen)
       appBar: AppBar(
