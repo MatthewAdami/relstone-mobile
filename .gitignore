@@ -4,12 +4,20 @@ backend/node_modules/
 package-lock.json
 backend/package-lock.json
 
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
 # Miscellaneous
 *.class
 *.log
 *.pyc
 *.swp
 .DS_Store
+Thumbs.db
 .atom/
 .build/
 .buildlog/
@@ -17,6 +25,10 @@ backend/package-lock.json
 .svn/
 .swiftpm/
 migrate_working_dir/
+*.salive
+
+# Local Android/IDE temp
+android/.kotlin/
 
 # Documentation files (specific local setup files only)
 CONNECTION_FIX_SUMMARY.md
@@ -68,11 +80,22 @@ package-lock.json
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
 /coverage/
+
+# Flutter generated platform files (local machine output)
+android/local.properties
+android/key.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
 
 # Symbolication related
 app.*.symbols
