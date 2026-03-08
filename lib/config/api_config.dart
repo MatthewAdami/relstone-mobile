@@ -1,9 +1,24 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConfig {
-  // Web uses localhost, Android emulator uses 10.0.2.2.
-  static String get baseUrl =>
-      kIsWeb ? "http://localhost:5000" : "http://10.0.2.2:5000";
+    static const String _envBaseUrl = String.fromEnvironment(
+        'API_BASE_URL',
+        defaultValue: '',
+    );
+
+    // URL rules:
+    // - Web + Windows/macOS/Linux + iOS simulator/device: localhost
+    // - Android emulator: 10.0.2.2 maps host loopback
+    // - API_BASE_URL (dart-define) overrides everything for remote/back-end hosts
+    static String get baseUrl {
+        if (_envBaseUrl.isNotEmpty) return _envBaseUrl;
+
+        if (kIsWeb) return 'http://localhost:5000';
+
+        return defaultTargetPlatform == TargetPlatform.android
+                ? 'http://10.0.2.2:5000'
+                : 'http://localhost:5000';
+    }
 
   static const String apiPrefix = "/api";
 

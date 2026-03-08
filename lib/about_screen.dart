@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:relstone_mobile/home_screen.dart';
+import 'package:relstone_mobile/home__screen/home_screen.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
