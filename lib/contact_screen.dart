@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:relstone_mobile/widgets/relstone_footer.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({Key? key}) : super(key: key);
@@ -14,16 +15,27 @@ class ContactScreen extends StatefulWidget {
 
 class _ContactScreenState extends State<ContactScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _messageController = TextEditingController();
+  TextEditingController? _nameController;
+  TextEditingController? _emailController;
+  TextEditingController? _subjectController;
+  TextEditingController? _messageController;
   bool _hasAttemptedSubmit = false;
 
   @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _subjectController = TextEditingController();
+    _messageController = TextEditingController();
+  }
+
+  @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _messageController.dispose();
+    _nameController?.dispose();
+    _emailController?.dispose();
+    _subjectController?.dispose();
+    _messageController?.dispose();
     super.dispose();
   }
 
@@ -57,9 +69,10 @@ class _ContactScreenState extends State<ContactScreen> {
 
   void _resetContactForm() {
     _formKey.currentState?.reset();
-    _nameController.clear();
-    _emailController.clear();
-    _messageController.clear();
+    _nameController?.clear();
+    _emailController?.clear();
+    _subjectController?.clear();
+    _messageController?.clear();
     setState(() {
       _hasAttemptedSubmit = false;
     });
@@ -99,7 +112,7 @@ class _ContactScreenState extends State<ContactScreen> {
             ],
           ),
           content: const Text(
-            'Your message has been sent successfully.',
+            'Your message has been sent successfully. We\'ll get back to you soon!',
             style: TextStyle(
               color: textDark,
               fontSize: 14,
@@ -128,8 +141,88 @@ class _ContactScreenState extends State<ContactScreen> {
     }
   }
 
+  Future<void> _submitContactForm() async {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) {
+      setState(() {
+        _hasAttemptedSubmit = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fix the highlighted fields.'),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: accentBlue),
+      ),
+    );
+
+    try {
+      // Get API base URL from config
+      const baseUrl = 'http://localhost:3002'; // Backend runs on port 3002
+      const apiPrefix = '/api/v1';
+
+      final response = await http.post(
+        Uri.parse('$baseUrl$apiPrefix/contact'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': _nameController?.text.trim(),
+          'email': _emailController?.text.trim(),
+          'subject': _subjectController?.text.trim(),
+          'message': _messageController?.text.trim(),
+        }),
+      );
+
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      if (response.statusCode == 201) {
+        // Success
+        await _showSuccessDialog();
+      } else {
+        // Error from server
+        final errorData = json.decode(response.body);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorData['message'] ?? 'Failed to send message'),
+              backgroundColor: Colors.redAccent,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      // Network or other error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       backgroundColor: bg,
 
@@ -171,32 +264,132 @@ class _ContactScreenState extends State<ContactScreen> {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // Contact Us Header
+          // Website-style gradient header
           Container(
             width: double.infinity,
-            color: const Color(0xFF1E3A5F), // Dark blue background
-            padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF071A2B), Color(0xFF143A5C)],
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(isMobile ? 20 : 40, isMobile ? 40 : 60, isMobile ? 20 : 40, isMobile ? 40 : 60),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Contact Us',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 35,
-                    letterSpacing: 0.5,
+                  'SUPPORT',
+                  style: TextStyle(
+                    color: const Color(0xFF2EA7FF),
+                    fontSize: isMobile ? 12 : 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: isMobile ? 8 : 16),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: isMobile ? 10 : 14,
+                  runSpacing: isMobile ? 10 : 12,
+                  children: [
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Contact ',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isMobile ? 32 : 56,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          TextSpan(
+                            text: 'Us',
+                            style: TextStyle(
+                              color: const Color(0xFF2EA7FF),
+                              fontSize: isMobile ? 32 : 56,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: isMobile ? 12 : 20),
                 Text(
-                  "We're here to help with any questions",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
+                  'We\'re here to help with any questions about our courses, your account, or licensing requirements.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: const Color(0xFFC5D4E3),
+                    fontSize: isMobile ? 14 : 18,
+                    height: 1.5,
                   ),
                 ),
+                SizedBox(height: isMobile ? 14 : 18),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: isMobile ? 280 : 420),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 24, vertical: isMobile ? 10 : 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B4E70).withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, badgeConstraints) {
+                        final useCompactLayout = badgeConstraints.maxWidth < 220;
+
+                        if (useCompactLayout) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.access_time, color: const Color(0xFF2EA7FF), size: isMobile ? 18 : 22),
+                              SizedBox(height: isMobile ? 6 : 8),
+                              Text(
+                                'Mon-Fri, 9am-5pm PST',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isMobile ? 13 : 16,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.25,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.access_time, color: const Color(0xFF2EA7FF), size: isMobile ? 18 : 22),
+                            SizedBox(width: isMobile ? 8 : 12),
+                            Text(
+                              'Mon-Fri, 9am-5pm PST',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isMobile ? 14 : 16,
+                                fontWeight: FontWeight.w600,
+                                height: 1.25,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: isMobile ? 16 : 24),
               ],
             ),
           ),
@@ -210,121 +403,91 @@ class _ContactScreenState extends State<ContactScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ✅ GET IN TOUCH SECTION  - Card Design
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    // GET IN TOUCH Header
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Get In Touch',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: primaryNavy,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              letterSpacing: -0.5,
+                            'GET IN TOUCH',
+                            style: TextStyle(
+                              color: textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 8),
                           Text(
                             'Have questions about our courses or need assistance with your account? Our team is ready to help.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: TextStyle(
                               color: textDark,
-                              fontSize: 15,
+                              fontSize: 14,
                               height: 1.6,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          // Email
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.email_outlined, color: accentBlue, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        color: primaryNavy,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'support@relstone.com',
-                                      style: TextStyle(
-                                        color: accentBlue,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          // Hours
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.schedule_outlined, color: accentBlue, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Hours',
-                                      style: TextStyle(
-                                        color: primaryNavy,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Monday – Friday: 9am – 5pm PST',
-                                      style: TextStyle(
-                                        color: textDark,
-                                        fontSize: 14,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Saturday – Sunday: Closed',
-                                      style: TextStyle(
-                                        color: textDark,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
+
+                    // Email Us Card
+                    _ContactInfoCard(
+                      icon: Icons.email,
+                      iconColor: accentBlue,
+                      title: 'Email Us',
+                      mainText: 'support@relstone.com',
+                      subText: 'We typically respond within 1 business day.',
+                      onTap: () async {
+                        final uri = Uri.parse('mailto:support@relstone.com');
+                        await launchUrl(uri);
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Call Us Card
+                    _ContactInfoCard(
+                      icon: Icons.phone,
+                      iconColor: accentBlue,
+                      title: 'Call Us',
+                      mainText: '1-800-877-5445',
+                      subText: 'Real people, no phone menus.',
+                      onTap: () async {
+                        final uri = Uri.parse('tel:18008775445');
+                        await launchUrl(uri);
+                      },
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Hours Card
+                    _ContactInfoCard(
+                      icon: Icons.access_time,
+                      iconColor: accentBlue,
+                      title: 'Hours',
+                      mainText: 'Monday – Friday: 9am – 5pm PST',
+                      subText: 'Saturday – Sunday: Closed',
+                      onTap: null,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Licensing Information Card
+                    _ContactInfoCard(
+                      icon: Icons.verified_outlined,
+                      iconColor: accentBlue,
+                      title: 'Licensing Information',
+                      mainText: 'DRE CE Sponsor ID: #1035',
+                      subText: 'DRE Pre-License Sponsor: #S0199',
+                      onTap: null,
+                      stackOnNarrow: false,
+                    ),
+
+                    const SizedBox(height: 24),
 
                     // ✅ BLUE DIVIDER
                     Container(
@@ -336,56 +499,7 @@ class _ContactScreenState extends State<ContactScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
-
-                    // ✅ LICENSING INFORMATION SECTION - Card Design
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Licensing Information',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: primaryNavy,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          _LicenseInfoRow('DRE CE Sponsor ID', '#1035'),
-                          const SizedBox(height: 16),
-                          _LicenseInfoRow('DRE Pre-License Sponsor', '#S0199'),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // ✅ BLUE DIVIDER
-                    Container(
-                      height: 2,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, accentBlue, Colors.transparent],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 24),
 
                     // ✅ CONTACT FORM SECTION - Card Design
                     Container(
@@ -394,9 +508,10 @@ class _ContactScreenState extends State<ContactScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE0E5EB), width: 1),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -407,56 +522,129 @@ class _ContactScreenState extends State<ContactScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Send Us a Message',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: primaryNavy,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25,
-                                letterSpacing: -0.5,
-                              ),
+                            // Title with icon (same layout behavior as Licensing Information)
+                            LayoutBuilder(
+                              builder: (context, titleConstraints) {
+                                final isNarrowTitle = titleConstraints.maxWidth < 380;
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: isNarrowTitle ? 44 : 48,
+                                      height: isNarrowTitle ? 44 : 48,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0B1E2E),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Icon(
+                                        Icons.send,
+                                        color: accentBlue,
+                                        size: isNarrowTitle ? 22 : 24,
+                                      ),
+                                    ),
+                                    SizedBox(width: isNarrowTitle ? 10 : 12),
+                                    Expanded(
+                                      child: Text(
+                                        'Send Us a Message',
+                                        maxLines: 2,
+                                        softWrap: true,
+                                        overflow: TextOverflow.visible,
+                                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                          color: primaryNavy,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: isNarrowTitle ? 16 : (isMobile ? 18 : 20),
+                                          letterSpacing: 0,
+                                          height: 1.15,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Name and Email side by side on wider screens
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final isWideEnough = constraints.maxWidth > 500;
+
+                                if (isWideEnough) {
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _CustomTextField(
+                                          label: 'Your name',
+                                          hint: 'Jane Smith',
+                                          controller: _nameController,
+                                          validator: _requiredValidator,
+                                          autovalidateMode: _hasAttemptedSubmit
+                                              ? AutovalidateMode.onUserInteraction
+                                              : AutovalidateMode.disabled,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _CustomTextField(
+                                          label: 'Your email',
+                                          hint: 'jane@example.com',
+                                          keyboardType: TextInputType.emailAddress,
+                                          controller: _emailController,
+                                          validator: _emailValidator,
+                                          autovalidateMode: _hasAttemptedSubmit
+                                              ? AutovalidateMode.onUserInteraction
+                                              : AutovalidateMode.disabled,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Column(
+                                    children: [
+                                      _CustomTextField(
+                                        label: 'Your name',
+                                        hint: 'Jane Smith',
+                                        controller: _nameController,
+                                        validator: _requiredValidator,
+                                        autovalidateMode: _hasAttemptedSubmit
+                                            ? AutovalidateMode.onUserInteraction
+                                            : AutovalidateMode.disabled,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _CustomTextField(
+                                        label: 'Your email',
+                                        hint: 'jane@example.com',
+                                        keyboardType: TextInputType.emailAddress,
+                                        controller: _emailController,
+                                        validator: _emailValidator,
+                                        autovalidateMode: _hasAttemptedSubmit
+                                            ? AutovalidateMode.onUserInteraction
+                                            : AutovalidateMode.disabled,
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
                             ),
                             const SizedBox(height: 16),
-                            Text(
-                              'Have a question or feedback? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: textDark,
-                                fontSize: 14,
-                                height: 1.6,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const SizedBox(height: 32),
 
-                            // Name Field
+                            // Subject Field
                             _CustomTextField(
-                              label: 'Full Name',
-                              hint: 'John Doe',
-                              controller: _nameController,
+                              label: 'Subject',
+                              hint: 'How can we help?',
+                              controller: _subjectController,
                               validator: _requiredValidator,
                               autovalidateMode: _hasAttemptedSubmit
                                   ? AutovalidateMode.onUserInteraction
                                   : AutovalidateMode.disabled,
                             ),
-                            const SizedBox(height: 20),
-
-                            // Email Field
-                            _CustomTextField(
-                              label: 'Email Address',
-                              hint: 'john@example.com',
-                              keyboardType: TextInputType.emailAddress,
-                              controller: _emailController,
-                              validator: _emailValidator,
-                              autovalidateMode: _hasAttemptedSubmit
-                                  ? AutovalidateMode.onUserInteraction
-                                  : AutovalidateMode.disabled,
-                            ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 16),
 
                             // Message Field
                             _CustomTextField(
-                              label: 'Message',
-                              hint: 'Your message here...',
+                              label: 'Your message',
+                              hint: 'Tell us more about your question...',
                               maxLines: 5,
                               controller: _messageController,
                               validator: _requiredValidator,
@@ -464,45 +652,29 @@ class _ContactScreenState extends State<ContactScreen> {
                                   ? AutovalidateMode.onUserInteraction
                                   : AutovalidateMode.disabled,
                             ),
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 24),
 
                             // Submit Button
                             SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  final isValid = _formKey.currentState?.validate() ?? false;
-                                  if (!isValid) {
-                                    setState(() {
-                                      _hasAttemptedSubmit = true;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Please fix the highlighted fields.'),
-                                        backgroundColor: Colors.redAccent,
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  await _showSuccessDialog();
-                                },
+                              child: ElevatedButton.icon(
+                                onPressed: _submitContactForm,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: accentBlue,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: const Color(0xFF0B1E2E),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  elevation: 2,
+                                  elevation: 0,
                                 ),
-                                child: Text(
-                                  'Send Message',
+                                icon: const Icon(Icons.send, size: 18, color: Colors.white),
+                                label: Text(
+                                  'SUBMIT',
                                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                     color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.0,
                                   ),
                                 ),
                               ),
@@ -520,8 +692,8 @@ class _ContactScreenState extends State<ContactScreen> {
 
           const SizedBox(height: 22),
 
-          // ✅ Footer (same as HomeScreen)
-          const _ContactFooterSection(),
+          // Footer
+          const RelstoneFooter(),
 
           const SizedBox(height: 10), // Add bottom padding to footer
         ],
@@ -726,141 +898,6 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-/* ───────────────────────────────────────────────────────────── */
-/* FOOTER */
-/* ───────────────────────────────────────────────────────────── */
-
-class _ContactFooterSection extends StatelessWidget {
-  const _ContactFooterSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2A),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.home_work_rounded, color: Colors.white),
-              SizedBox(width: 10),
-              Text('RELSTONE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Providing quality education for California Real Estate and Insurance professionals.',
-            style: TextStyle(color: Colors.white70, height: 1.45, fontSize: 13),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _ContactSocialIcon(icon: FontAwesomeIcons.facebook, color: const Color(0xFF1877F2), label: 'Facebook', url: 'https://www.facebook.com/RelstoneSD'),
-              const SizedBox(width: 10),
-              _ContactSocialIcon(icon: FontAwesomeIcons.linkedin, color: const Color(0xFF0A66C2), label: 'LinkedIn', url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
-              const SizedBox(width: 10),
-              _ContactSocialIcon(icon: FontAwesomeIcons.xTwitter, color: const Color(0xFFE7E7E7), label: 'X / Twitter', url: 'https://twitter.com/relstone'),
-              const SizedBox(width: 10),
-              _ContactSocialIcon(icon: FontAwesomeIcons.tiktok, color: const Color(0xFFEE1D52), label: 'TikTok', url: 'https://tiktok.com/@relstone'),
-              const SizedBox(width: 10),
-              _ContactSocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram', url: 'https://instagram.com/relstone'),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              _FooterChip('Contact Us', () => Navigator.pushNamed(context, '/contact')),
-              _FooterChip('Privacy Policy', () {}),
-              _FooterChip('Refund Policy', () {}),
-              _FooterChip('Terms of Use', () {}),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 10),
-          const Text('© 2026 Relstone. All rights reserved.',
-              style: TextStyle(color: Color(0xFF6B7E92), fontSize: 12)),
-        ],
-      ),
-    );
-  }
-}
-
-/* ─── SOCIAL ICON ──────────────────────────────────────────────────── */
-class _ContactSocialIcon extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String url;
-  const _ContactSocialIcon({required this.icon, required this.color, required this.label, required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: label,
-      child: InkWell(
-        onTap: () async {
-          final uri = Uri.parse(url);
-          try {
-            await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
-          } catch (_) {
-            await launchUrl(uri, mode: LaunchMode.platformDefault);
-          }
-        },
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            border: Border.all(color: color.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Center(child: FaIcon(icon, color: color, size: 17)),
-        ),
-      ),
-    );
-  }
-}
-
-class _FooterChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _FooterChip(this.label, this.onTap);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white24),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /* ───────────────────────────────────────────────────────────── */
 /* CUSTOM FORM COMPONENTS */
@@ -871,14 +908,14 @@ class _CustomTextField extends StatelessWidget {
   final String hint;
   final int maxLines;
   final TextInputType keyboardType;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? Function(String?)? validator;
   final AutovalidateMode autovalidateMode;
 
   const _CustomTextField({
     required this.label,
     required this.hint,
-    required this.controller,
+    this.controller,
     this.validator,
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
@@ -957,89 +994,128 @@ class _CustomTextField extends StatelessWidget {
   }
 }
 
-class _LicenseInfoRow extends StatelessWidget {
-  final String label;
-  final String value;
+class _ContactInfoCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String mainText;
+  final String subText;
+  final VoidCallback? onTap;
+  final bool stackOnNarrow;
 
-  const _LicenseInfoRow(this.label, this.value);
+  const _ContactInfoCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.mainText,
+    required this.subText,
+    this.onTap,
+    this.stackOnNarrow = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     const Color primaryNavy = Color(0xFF1A3A5C);
-    const Color accentBlue = Color(0xFF2E7EBE);
     const Color textDark = Color(0xFF1C2B3A);
+    const Color textMuted = Color(0xFF6B7E92);
 
-    return LayoutBuilder(
+    final textContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: primaryNavy,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          mainText,
+          style: TextStyle(
+            color: onTap != null ? iconColor : textDark,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subText,
+          style: const TextStyle(
+            color: textMuted,
+            fontSize: 13,
+            fontStyle: FontStyle.italic,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+
+    final cardContent = LayoutBuilder(
       builder: (context, constraints) {
-        // On screens smaller than 400px, stack vertically
-        bool isSmallScreen = constraints.maxWidth < 400;
+        final shouldStack = stackOnNarrow && constraints.maxWidth < 380;
 
-        return isSmallScreen
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: textDark,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F5FA),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: accentBlue.withOpacity(0.3), width: 1),
-                    ),
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        color: accentBlue,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: const TextStyle(
-                        color: textDark,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F5FA),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: accentBlue.withOpacity(0.3), width: 1),
-                    ),
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        color: accentBlue,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ),
-                ],
-              );
+        final iconBox = Container(
+          width: shouldStack ? 44 : 48,
+          height: shouldStack ? 44 : 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B1E2E),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: iconColor, size: shouldStack ? 22 : 24),
+        );
+
+        if (shouldStack) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              iconBox,
+              const SizedBox(height: 10),
+              textContent,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            iconBox,
+            const SizedBox(width: 16),
+            Expanded(child: textContent),
+          ],
+        );
       },
     );
+
+    final container = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE0E5EB), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: cardContent,
+    );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: container,
+      );
+    }
+
+    return container;
   }
 }

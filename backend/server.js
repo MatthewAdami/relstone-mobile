@@ -630,6 +630,146 @@ app.get(`${API_PREFIX}/documents`, (req, res) => {
 });
 
 // ============================================================================
+// CONTACT FORM
+// ============================================================================
+
+// Submit contact form
+app.post(`${API_PREFIX}/contact`, async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'All fields are required (name, email, subject, message)'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid email format'
+      });
+    }
+
+    // Check if database is connected
+    if (!webDb) {
+      console.error('✗ Database not connected');
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Database connection not available. Please try again later.'
+      });
+    }
+
+    // Create contact message document
+    const contactMessage = {
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      subject: subject.trim(),
+      message: message.trim(),
+      status: 'new',
+      submittedAt: new Date()
+    };
+
+    // Insert into database
+    const result = await webDb.collection('contactmessages').insertOne(contactMessage);
+
+    console.log(`✓ Contact message received from ${email}`);
+
+    // Send email notification to admin
+    try {
+      const adminEmail = 'johanesangeless.rels@gmail.com';
+
+      const mailOptions = {
+        from: `"Relstone Contact Form" <${process.env.EMAIL_USER}>`,
+        to: adminEmail,
+        subject: `New Contact Message: ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+            <h2 style="color: #1A3A5C; border-bottom: 2px solid #2E7EBE; padding-bottom: 10px;">
+              New Contact Form Submission
+            </h2>
+
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 5px 0;"><strong style="color: #1A3A5C;">Name:</strong> ${name}</p>
+              <p style="margin: 5px 0;"><strong style="color: #1A3A5C;">Email:</strong> <a href="mailto:${email}" style="color: #2E7EBE;">${email}</a></p>
+              <p style="margin: 5px 0;"><strong style="color: #1A3A5C;">Subject:</strong> ${subject}</p>
+              <p style="margin: 5px 0;"><strong style="color: #1A3A5C;">Submitted:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} PST</p>
+            </div>
+
+            <div style="background-color: white; padding: 15px; border: 1px solid #e0e5eb; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #1A3A5C; margin-top: 0;">Message:</h3>
+              <p style="color: #1C2B3A; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background-color: #e8f4fd; border-left: 4px solid #2E7EBE; border-radius: 4px;">
+              <p style="margin: 0; color: #1A3A5C; font-size: 14px;">
+                <strong>Quick Reply:</strong> Click on the email address above to reply directly to the sender.
+              </p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+            <p style="color: #666; font-size: 12px; margin: 0;">
+              This message was sent from the Relstone Contact Form
+            </p>
+          </div>
+        `
+      };
+
+      await emailTransporter.sendMail(mailOptions);
+      console.log(`✓ Notification email sent to ${adminEmail}`);
+    } catch (emailError) {
+      console.error('✗ Failed to send notification email:', emailError.message);
+      // Don't fail the request if email fails, just log it
+    }
+
+    res.status(201).json({
+      message: 'Contact message received successfully',
+      id: result.insertedId
+    });
+
+  } catch (error) {
+    console.error('✗ Contact form error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to submit contact message. Please try again later.'
+    });
+  }
+});
+
+// Get all contact messages (admin)
+app.get(`${API_PREFIX}/contact`, async (req, res) => {
+  try {
+    if (!webDb) {
+      return res.status(503).json({
+        error: 'Service Unavailable',
+        message: 'Database connection not available'
+      });
+    }
+
+    const messages = await webDb.collection('contactmessages')
+      .find()
+      .sort({ submittedAt: -1 })
+      .toArray();
+
+    res.status(200).json({
+      messages,
+      count: messages.length
+    });
+
+  } catch (error) {
+    console.error('✗ Error fetching contact messages:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch contact messages'
+    });
+  }
+});
+
+// ============================================================================
 // ERROR HANDLING
 // ============================================================================
 

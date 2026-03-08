@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:relstone_mobile/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:relstone_mobile/widgets/relstone_footer.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -124,43 +124,86 @@ class AboutScreen extends StatelessWidget {
                 InkWell(
                   onTap: _callTollFree,
                   borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 22, vertical: isMobile ? 7 : 16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2B4E70).withOpacity(0.35),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.white.withOpacity(0.18)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.call, color: const Color(0xFF2EA7FF), size: isMobile ? 14 : 26),
-                        SizedBox(width: isMobile ? 5 : 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'CALL TOLL-FREE',
-                              style: TextStyle(
-                                color: const Color(0xFFAFC3D8),
-                                fontSize: isMobile ? 7 : 12,
-                                letterSpacing: 1.0,
-                                fontWeight: FontWeight.w700,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: isMobile ? 280 : 560),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 22, vertical: isMobile ? 7 : 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B4E70).withOpacity(0.35),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.white.withOpacity(0.18)),
+                      ),
+                      child: LayoutBuilder(
+                        builder: (context, badgeConstraints) {
+                          final useCompactLayout = badgeConstraints.maxWidth < 230;
+
+                          if (useCompactLayout) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.call, color: const Color(0xFF2EA7FF), size: isMobile ? 14 : 26),
+                                SizedBox(height: isMobile ? 4 : 8),
+                                Text(
+                                  'CALL TOLL-FREE',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: const Color(0xFFAFC3D8),
+                                    fontSize: isMobile ? 7 : 12,
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 1),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    '1-800-877-5445',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isMobile ? 12 : 32,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.call, color: const Color(0xFF2EA7FF), size: isMobile ? 14 : 26),
+                              SizedBox(width: isMobile ? 5 : 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'CALL TOLL-FREE',
+                                    style: TextStyle(
+                                      color: const Color(0xFFAFC3D8),
+                                      fontSize: isMobile ? 7 : 12,
+                                      letterSpacing: 1.0,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    '1-800-877-5445',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isMobile ? 12 : 32,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              '1-800-877-5445',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: isMobile ? 12 : 32,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -483,8 +526,9 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Footer
-          const _AboutFooterSection(),
-          const SizedBox(height: 10),
+          const RelstoneFooter(),
+
+          const SizedBox(height: 10), // Add bottom padding to footer
         ],
       ),
     );
@@ -815,6 +859,7 @@ class _ChecklistItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
             Icons.check_circle,
@@ -822,12 +867,15 @@ class _ChecklistItem extends StatelessWidget {
             size: 20,
           ),
           const SizedBox(width: 12),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              text,
+              softWrap: true,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -1630,142 +1678,6 @@ class _NavItem extends StatelessWidget {
             color: color,
             fontSize: 14.5,
             fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/* ───────────────────────────────────────────────────────────── */
-/* FOOTER */
-/* ───────────────────────────────────────────────────────────── */
-
-class _AboutFooterSection extends StatelessWidget {
-  const _AboutFooterSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B1A2A),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.home_work_rounded, color: Colors.white),
-              SizedBox(width: 10),
-              Text('RELSTONE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Providing quality education for California Real Estate and Insurance professionals.',
-            style: TextStyle(color: Colors.white70, height: 1.45, fontSize: 13),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _AboutSocialIcon(icon: FontAwesomeIcons.facebook, color: const Color(0xFF1877F2), label: 'Facebook', url: 'https://www.facebook.com/RelstoneSD'),
-              const SizedBox(width: 10),
-              _AboutSocialIcon(icon: FontAwesomeIcons.linkedin, color: const Color(0xFF0A66C2), label: 'LinkedIn', url: 'https://www.linkedin.com/company/relstone/posts/?feedView=all'),
-              const SizedBox(width: 10),
-              _AboutSocialIcon(icon: FontAwesomeIcons.xTwitter, color: const Color(0xFFE7E7E7), label: 'X / Twitter', url: 'https://twitter.com/relstone'),
-              const SizedBox(width: 10),
-              _AboutSocialIcon(icon: FontAwesomeIcons.tiktok, color: const Color(0xFFEE1D52), label: 'TikTok', url: 'https://tiktok.com/@relstone'),
-              const SizedBox(width: 10),
-              _AboutSocialIcon(icon: FontAwesomeIcons.instagram, color: const Color(0xFFE1306C), label: 'Instagram', url: 'https://instagram.com/relstone'),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              _FooterChip('Contact Us', () => Navigator.pushNamed(context, '/contact')),
-              _FooterChip('Privacy Policy', () {}),
-              _FooterChip('Refund Policy', () {}),
-              _FooterChip('Terms of Use', () {}),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 10),
-          const Text('© 2026 Relstone. All rights reserved.',
-              style: TextStyle(color: Color(0xFF6B7E92), fontSize: 12)),
-        ],
-      ),
-    );
-  }
-}
-
-/* ─── SOCIAL ICON ──────────────────────────────────────────────────── */
-class _AboutSocialIcon extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final String url;
-  const _AboutSocialIcon({required this.icon, required this.color, required this.label, required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: label,
-      child: InkWell(
-        onTap: () async {
-          final uri = Uri.parse(url);
-          try {
-            await launchUrl(uri, mode: LaunchMode.externalNonBrowserApplication);
-          } catch (_) {
-            await launchUrl(uri, mode: LaunchMode.platformDefault);
-          }
-        },
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            border: Border.all(color: color.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Center(child: FaIcon(icon, color: color, size: 17)),
-        ),
-      ),
-    );
-  }
-}
-
-class _FooterChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _FooterChip(this.label, this.onTap);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white24),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),
