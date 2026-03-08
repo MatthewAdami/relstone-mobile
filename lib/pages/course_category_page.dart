@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/cart_service.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/sidebar.dart';
 import '../widgets/main_layout.dart';
 
 class CourseCategoryPage extends StatefulWidget {
@@ -69,7 +69,7 @@ class _CourseCategoryPageState extends State<CourseCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return MainLayout(
-      drawer: const AppDrawer(),
+      drawer: const Sidebar(),
       body: Column(
         children: [
           Expanded(

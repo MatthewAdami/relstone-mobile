@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/cart_service.dart';
 import '../widgets/main_layout.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/sidebar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MainLayout(
-      drawer: const AppDrawer(),
+      drawer: const Sidebar(),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [

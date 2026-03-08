@@ -4,8 +4,8 @@ import '../config/api_config.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+class Sidebar extends StatelessWidget {
+  const Sidebar({super.key});
 
   static const Color navBg = Color(0xFF0B1A2A);
 
@@ -47,6 +47,10 @@ class AppDrawer extends StatelessWidget {
               title: "States",
               initiallyExpanded: true,
               children: [
+                _NavItem(
+                  title: "Select a State",
+                  onTap: () => _go(context, "/states"),
+                ),
                 _StatesDropdownPanel(
                   onSelectState: (slug) {
                     Navigator.of(context).pop();
@@ -87,7 +91,7 @@ class AppDrawer extends StatelessWidget {
               children: [
                 _NavItem(
                   title: "Select a State",
-                  onTap: () => _go(context, "/insurance-state"),
+                  onTap: () => _go(context, "/insurance-states"),
                 ),
                 _NavItem(
                   title: "Courses",
@@ -118,8 +122,18 @@ class AppDrawer extends StatelessWidget {
               onTap: () async {
                 Navigator.pop(context);
                 await AuthService.logout();
-                Navigator.pushReplacementNamed(context, '/login');
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
               },
+            ),
+
+            const SizedBox(height: 10),
+            const Divider(color: Colors.white12, height: 1),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 18),
+              child: Text(
+                '© 2026 Relstone. All rights reserved.',
+                style: TextStyle(color: Colors.white70, fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -142,9 +156,14 @@ class _NavExpansion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      data: Theme.of(context).copyWith(
+        dividerColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
       child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+        childrenPadding: const EdgeInsets.only(left: 10, bottom: 8),
         iconColor: Colors.white60,
         collapsedIconColor: Colors.white60,
         initiallyExpanded: initiallyExpanded,
@@ -177,13 +196,13 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 2),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       title: Text(
         title,
         style: TextStyle(
           color: color,
-          fontSize: 13.5,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
       onTap: onTap,
@@ -285,13 +304,13 @@ class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
 
         return ListTile(
           dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24),
           title: Text(
             name,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
             ),
           ),
           onTap: () {
