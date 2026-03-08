@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:relstone_mobile/home__screen/home_screen.dart';
+import 'package:relstone_mobile/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 // ✅ add this import
 
 
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // ── Handle Login ──────────────────────────────────────────
-  void _handleLogin() async {
+ void _handleLogin() async {
   setState(() => _errorMessage = null);
 
   if (!_formKey.currentState!.validate()) return;
@@ -165,7 +165,34 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
-      Navigator.pushReplacementNamed(context, '/homescreen');
+      // ✅ Get token and user from SharedPreferences (saved by AuthService)
+      final prefs   = await SharedPreferences.getInstance();
+      final token   = prefs.getString('token') ?? '';
+      final userStr = prefs.getString('user') ?? '{}';
+      final user    = jsonDecode(userStr) as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(
+        context,
+        '/homescreen',
+        arguments: {
+          'user':  user,
+          'token': token,
+        },
+      );
+      return;
+    }
+
+    if (result['needsVerification'] == true) {
+      Navigator.pushNamed(
+        context,
+        '/verify-email',
+        arguments: {
+          'userId': result['userId']?.toString(),
+          'email': _emailController.text.trim(),
+        },
+      );
       return;
     }
 
@@ -428,12 +455,18 @@ class _LoginScreenState extends State<LoginScreen>
                                         tapTargetSize: MaterialTapTargetSize
                                             .shrinkWrap,
                                       ),
-                                      child: const Text(
-                                        'Forgot password?',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: accentBlue,
-                                          fontWeight: FontWeight.w500,
+                                      child: TextButton(
+                                        onPressed: () {
+                                          // Navigate to Forgot Password screen or call the appropriate function
+                                          Navigator.pushNamed(context, '/forgot-password');
+                                        },
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: accentBlue,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ),

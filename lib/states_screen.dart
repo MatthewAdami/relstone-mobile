@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:relstone_mobile/insurance_ce_screen.dart';
 
 class StatesScreen extends StatefulWidget {
   const StatesScreen({super.key});
@@ -45,16 +46,22 @@ class _StatesScreenState extends State<StatesScreen> {
       .where((s) => s.toLowerCase().contains(_search.toLowerCase()))
       .toList();
 
+  String _slugify(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+  }
+
   void _onStateTap(String state) {
-    // TODO: Navigate to the state's courses/products page
-    // Example: Navigator.pushNamed(context, '/state-courses', arguments: state);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Selected: $state'),
-        backgroundColor: primaryNavy,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 1),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => InsuranceCEScreen(
+          startInDetailMode: true,
+          initialStateName: state,
+          initialStateSlug: _slugify(state),
+        ),
       ),
     );
   }

@@ -50,7 +50,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   // ✅ Backend endpoints based on your auth.js
-  String get _verifyUrl => "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/verify";
+  String get _verifyUrl => "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/verify-email";
   String get _resendUrl =>
       "${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/auth/resend-code";
 
@@ -109,7 +109,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     final result = await ApiClient.post(
       _resendUrl,
-      body: {'userId': _userId},
+      body: {
+        'userId': _userId,
+        if (_email != null && _email!.isNotEmpty) 'email': _email,
+      },
     );
 
     if (!mounted) return;
