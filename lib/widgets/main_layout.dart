@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../services/cart_service.dart';
+import 'relstone_header.dart';
 
 class MainLayout extends StatelessWidget {
   final Widget body;
@@ -22,46 +22,7 @@ class MainLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: bg,
       drawer: drawer,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/relstone_logo.png',
-              height: 28,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Text(
-                'RELSTONE',
-                style: TextStyle(
-                  color: primaryNavy,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          ListenableBuilder(
-            listenable: CartService.instance,
-            builder: (context, _) {
-              final count = CartService.instance.cartCount;
-              return Badge(
-                label: Text('$count'),
-                isLabelVisible: count > 0,
-                child: IconButton(
-                  tooltip: "Cart",
-                  onPressed: () => Navigator.pushNamed(context, '/cart'),
-                  icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
+      appBar: const RelstoneHeader(showCartBadge: true),
       body: body,
     );
   }
