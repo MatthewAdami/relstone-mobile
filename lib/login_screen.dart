@@ -1,8 +1,16 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
+=======
+import 'package:relstone_mobile/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+// ✅ add this import
+>>>>>>> test-dev
 
 // ── Brand colors ──────────────────────────────────────────────────────
 const Color primaryNavy = Color(0xFF1A3A5C);
@@ -105,11 +113,17 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+<<<<<<< HEAD
   // ── Handle Login ──────────────────────────────────────────────────
   void _handleLogin() async {
     setState(() => _errorMessage = null);
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+=======
+  // ── Handle Login ──────────────────────────────────────────
+ void _handleLogin() async {
+  setState(() => _errorMessage = null);
+>>>>>>> test-dev
 
     try {
       final result = await AuthService.login(
@@ -132,6 +146,7 @@ class _LoginScreenState extends State<LoginScreen>
         return;
       }
 
+<<<<<<< HEAD
       setState(() {
         _errorMessage = result['message'] ?? 'Login failed. Please try again.';
       });
@@ -141,6 +156,41 @@ class _LoginScreenState extends State<LoginScreen>
         _isLoading    = false;
         _errorMessage = 'Cannot connect to server. Check API URL & internet.';
       });
+=======
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result['success'] == true) {
+      // ✅ Get token and user from SharedPreferences (saved by AuthService)
+      final prefs   = await SharedPreferences.getInstance();
+      final token   = prefs.getString('token') ?? '';
+      final userStr = prefs.getString('user') ?? '{}';
+      final user    = jsonDecode(userStr) as Map<String, dynamic>;
+
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(
+        context,
+        '/homescreen',
+        arguments: {
+          'user':  user,
+          'token': token,
+        },
+      );
+      return;
+    }
+
+    if (result['needsVerification'] == true) {
+      Navigator.pushNamed(
+        context,
+        '/verify-email',
+        arguments: {
+          'userId': result['userId']?.toString(),
+          'email': _emailController.text.trim(),
+        },
+      );
+      return;
+>>>>>>> test-dev
     }
   }
 
@@ -336,9 +386,25 @@ class _LoginScreenState extends State<LoginScreen>
                                         minimumSize: Size.zero,
                                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       ),
+<<<<<<< HEAD
                                       child: const Text(
                                         'Forgot password?',
                                         style: TextStyle(fontSize: 13, color: accentBlue, fontWeight: FontWeight.w500),
+=======
+                                      child: TextButton(
+                                        onPressed: () {
+                                          // Navigate to Forgot Password screen or call the appropriate function
+                                          Navigator.pushNamed(context, '/forgot-password');
+                                        },
+                                        child: const Text(
+                                          'Forgot password?',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: accentBlue,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+>>>>>>> test-dev
                                       ),
                                     ),
                                   ),

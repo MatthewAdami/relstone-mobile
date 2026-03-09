@@ -8,9 +8,23 @@ import 'package:relstone_mobile/verify_email_screen.dart';
 import 'package:relstone_mobile/forgot_password_screen.dart';
 import 'package:relstone_mobile/states_screen.dart';
 import 'package:relstone_mobile/contact_screen.dart';
+<<<<<<< HEAD
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
 
+=======
+import 'package:relstone_mobile/about_screen.dart';
+import 'package:relstone_mobile/profile_screen.dart';
+import 'package:relstone_mobile/checkout_screen.dart';
+import 'package:relstone_mobile/all_products_screen.dart';
+import 'package:relstone_mobile/splash_screen.dart';
+import 'sales_license_screen.dart';
+import 'real_estate_ce_screen.dart';
+import 'package:relstone_mobile/insurance_ce_screen.dart';
+import 'package:relstone_mobile/refund_policy_screen.dart';
+import 'package:relstone_mobile/exam_portal_screen.dart';
+import 'package:relstone_mobile/my_courses_screen.dart';
+>>>>>>> test-dev
 void main() {
   runApp(const MainApp());
 }
@@ -33,11 +47,36 @@ class MainApp extends StatelessWidget {
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/states':          (context) => const StatesScreen(),
         '/contact':         (context) => const ContactScreen(),
+<<<<<<< HEAD
         '/insurance-state': (context) => const InsuranceStatePage(),
         '/cart':            (context) => const CartPage(),
       },
 
       // ── Dynamic routes (arguments required) ───────────────────
+=======
+        '/about':           (context) => AboutScreen(),
+        '/refund-policy':   (context) => const RefundPolicyScreen(),
+        '/insurance-ce':    (context) => const InsuranceCEScreen(),
+        '/insurance-state': (context) => const InsuranceCEScreen(),
+        '/cart':            (context) => const CartPage(),
+        // Placeholder routes for future   implementation
+        '/sales':                (context) => const StatesScreen(),
+        '/broker':               (context) => const StatesScreen(),
+        '/dre-ce':               (context) => const StatesScreen(),
+        '/exam-prep':            (context) => const StatesScreen(),
+        '/insurance-states':     (context) => const InsuranceCEScreen(),
+        '/insurance-courses':    (context) => const InsuranceCEScreen(),
+        '/cfp-renewal':          (context) => const StatesScreen(),
+        '/all-products': (context) => const AllProductsScreen(),
+        '/':            (context) => const SplashScreen(), 
+        '/sales-license': (context) => const SalesLicenseScreen(),
+        '/real-estate-ce': (context) => const RealEstateCEScreen(),
+        '/my-courses': (context) => const MyCoursesScreen(),
+        
+      },
+
+      // ── Dynamic routes  (arguments required) ───────────────────
+>>>>>>> test-dev
       onGenerateRoute: (settings) {
         final name = settings.name ?? '';
 
@@ -73,6 +112,18 @@ class MainApp extends StatelessWidget {
               ),
             );
           }
+<<<<<<< HEAD
+=======
+          case '/exam-portal': {
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (_) => ExamPortalScreen(
+                bundleId: args?['bundleId'] ?? '',
+                examName: args?['examName'] ?? '',
+              ),
+            );
+          }
+>>>>>>> test-dev
 
           default:
             return MaterialPageRoute(builder: (_) => LoginScreen());
