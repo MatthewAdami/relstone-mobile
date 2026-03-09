@@ -12,15 +12,34 @@ class ApiConfig {
 
   static const String apiPrefix = "/api";
 
-  // Backend routes are served under /api in current local setup.
-  static String get login => "$baseUrl$apiPrefix/auth/login";
+  // Auth
+  static String get login    => "$baseUrl$apiPrefix/auth/login";
   static String get register => "$baseUrl$apiPrefix/auth/register";
-  static String get health => "$baseUrl$apiPrefix/health";
+  static String get health   => "$baseUrl$apiPrefix/health";
+  static String get me       => "$baseUrl$apiPrefix/auth/me";          // ← ADD
+  static String get myCourses => "$baseUrl$apiPrefix/auth/my-courses"; // ← ADD
+
+  
+
+  // Exam  ← ADD ALL BELOW
+static String get examStart  => "$baseUrl$apiPrefix/exam-session/start"; 
+  static String get examSubmit => "$baseUrl$apiPrefix/exam-session/submit";
+  static String get examSave   => "$baseUrl$apiPrefix/exam-session/save";   // ← ADD THIS
+
+  static String examSession(String studentId, String bundleId) =>
+      "$baseUrl$apiPrefix/exam-session/bundle/$studentId/$bundleId";
+
+  // Certificate  ← ADD ALL BELOW
+  static String certDownload(String courseId) =>
+      "$baseUrl$apiPrefix/certificate/download/$courseId";
+  static String certStatus(String courseId) =>
+      "$baseUrl$apiPrefix/certificate/status/$courseId";
+
+  // Insurance (unchanged)
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
   static String insuranceState(String slug) =>
       "$baseUrl$apiPrefix/insurance/states/${Uri.encodeComponent(slug)}";
   static String insuranceCourses(String slug) =>
       "$baseUrl$apiPrefix/insurance/courses/${Uri.encodeComponent(slug)}";
-
   static String insuranceStateFull(String slug) => insuranceState(slug);
 }
