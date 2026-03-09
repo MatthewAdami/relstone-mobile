@@ -8,11 +8,6 @@ import 'package:relstone_mobile/verify_email_screen.dart';
 import 'package:relstone_mobile/forgot_password_screen.dart';
 import 'package:relstone_mobile/states_screen.dart';
 import 'package:relstone_mobile/contact_screen.dart';
-<<<<<<< HEAD
-import 'package:relstone_mobile/profile_screen.dart';
-import 'package:relstone_mobile/checkout_screen.dart';
-
-=======
 import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
@@ -24,7 +19,6 @@ import 'package:relstone_mobile/insurance_ce_screen.dart';
 import 'package:relstone_mobile/refund_policy_screen.dart';
 import 'package:relstone_mobile/exam_portal_screen.dart';
 import 'package:relstone_mobile/my_courses_screen.dart';
->>>>>>> test-dev
 void main() {
   runApp(const MainApp());
 }
@@ -47,13 +41,6 @@ class MainApp extends StatelessWidget {
         '/forgot-password': (context) => ForgotPasswordScreen(),
         '/states':          (context) => const StatesScreen(),
         '/contact':         (context) => const ContactScreen(),
-<<<<<<< HEAD
-        '/insurance-state': (context) => const InsuranceStatePage(),
-        '/cart':            (context) => const CartPage(),
-      },
-
-      // ── Dynamic routes (arguments required) ───────────────────
-=======
         '/about':           (context) => AboutScreen(),
         '/refund-policy':   (context) => const RefundPolicyScreen(),
         '/insurance-ce':    (context) => const InsuranceCEScreen(),
@@ -76,7 +63,6 @@ class MainApp extends StatelessWidget {
       },
 
       // ── Dynamic routes  (arguments required) ───────────────────
->>>>>>> test-dev
       onGenerateRoute: (settings) {
         final name = settings.name ?? '';
 
@@ -112,8 +98,6 @@ class MainApp extends StatelessWidget {
               ),
             );
           }
-<<<<<<< HEAD
-=======
           case '/exam-portal': {
             final args = settings.arguments as Map<String, dynamic>?;
             return MaterialPageRoute(
@@ -123,7 +107,6 @@ class MainApp extends StatelessWidget {
               ),
             );
           }
->>>>>>> test-dev
 
           default:
             return MaterialPageRoute(builder: (_) => LoginScreen());

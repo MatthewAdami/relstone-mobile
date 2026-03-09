@@ -57,7 +57,7 @@ class ContactScreen extends StatelessWidget {
           // Contact Us Header
           Container(
             width: double.infinity,
-            color: const Color(0xFF1E3A5F),
+            color: const Color(0xFF1E3A5F), // Dark blue background
             padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -85,30 +85,6 @@ class ContactScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-<<<<<<< HEAD
-          // ✅ Content area - All cards with consistent width
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ✅ GET IN TOUCH SECTION - Card Design
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-=======
           // Content area - placeholder for additional content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -126,7 +102,6 @@ class ContactScreen extends StatelessWidget {
                         color: Colors.black.withOpacity(0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
->>>>>>> test-dev
                       ),
                     ],
                   ),
@@ -157,55 +132,6 @@ class ContactScreen extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-<<<<<<< HEAD
-                          Text(
-                            'Send Us a Message',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: primaryNavy,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Have a question or feedback? We\'d love to hear from you. Fill out the form below and we\'ll get back to you as soon as possible.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: textDark,
-                              fontSize: 14,
-                              height: 1.6,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-
-                          _CustomTextField(label: 'Full Name', hint: 'John Doe'),
-                          const SizedBox(height: 20),
-
-                          _CustomTextField(
-                            label: 'Email Address',
-                            hint: 'john@example.com',
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 20),
-
-                          _CustomTextField(
-                            label: 'Message',
-                            hint: 'Your message here...',
-                            maxLines: 5,
-                          ),
-                          const SizedBox(height: 28),
-
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Message sent! We\'ll get back to you soon.'),
-                                    backgroundColor: Color(0xFF2E7EBE),
-                                    duration: Duration(seconds: 2),
-=======
                           Icon(Icons.email_outlined, color: accentBlue, size: 20),
                           const SizedBox(width: 12),
                           Expanded(
@@ -218,7 +144,6 @@ class ContactScreen extends StatelessWidget {
                                     color: primaryNavy,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
->>>>>>> test-dev
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -443,8 +368,11 @@ class ContactScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 22),
+
+          // ✅ Footer (same as HomeScreen)
           const _ContactFooterSection(),
-          const SizedBox(height: 10),
+
+          const SizedBox(height: 10), // Add bottom padding to footer
         ],
       ),
     );
@@ -461,7 +389,7 @@ class _ContactAppSidebar extends StatelessWidget {
   static const Color navBg = Color(0xFF0B1A2A);
 
   void _go(BuildContext context, String route) {
-    Navigator.pop(context);
+    Navigator.pop(context); // close drawer
     Navigator.pushNamed(context, route);
   }
 
@@ -494,41 +422,81 @@ class _ContactAppSidebar extends StatelessWidget {
               ),
             ),
             const Divider(color: Colors.white12, height: 1),
+
             _NavExpansion(
               title: "States",
               children: [
-                _NavItem(title: "Select a State", onTap: () => _go(context, "/states")),
+                _NavItem(
+                  title: "Select a State",
+                  onTap: () => _go(context, "/states"),
+                ),
               ],
             ),
+
             _NavExpansion(
               title: "California Real Estate",
               children: [
-                _NavItem(title: "Sales License", onTap: () => _go(context, "/sales")),
-                _NavItem(title: "Broker License", onTap: () => _go(context, "/broker")),
-                _NavItem(title: "45 Hour DRE Renewal CE", onTap: () => _go(context, "/dre-ce")),
+                _NavItem(
+                  title: "Sales License",
+                  onTap: () => _go(context, "/sales"),
+                ),
+                _NavItem(
+                  title: "Broker License",
+                  onTap: () => _go(context, "/broker"),
+                ),
+                _NavItem(
+                  title: "45 Hour DRE Renewal CE",
+                  onTap: () => _go(context, "/dre-ce"),
+                ),
               ],
             ),
-            _NavItem(title: "Exam Prep", onTap: () => _go(context, "/exam-prep")),
+
+            _NavItem(
+              title: "Exam Prep",
+              onTap: () => _go(context, "/exam-prep"),
+            ),
+
             _NavExpansion(
               title: "Insurance CE",
               children: [
-                _NavItem(title: "Select a State", onTap: () => _go(context, "/insurance-states")),
-                _NavItem(title: "Courses", onTap: () => _go(context, "/insurance-courses")),
+                _NavItem(
+                  title: "Select a State",
+                  onTap: () => _go(context, "/insurance-states"),
+                ),
+                _NavItem(
+                  title: "Courses",
+                  onTap: () => _go(context, "/insurance-courses"),
+                ),
               ],
             ),
-            _NavItem(title: "CFP Renewal", onTap: () => _go(context, "/cfp-renewal")),
-            _NavItem(title: "About Us", onTap: () => _go(context, "/about")),
-            _NavItem(title: "Contact Us", onTap: () => _go(context, "/contact")),
+
+            _NavItem(
+              title: "CFP Renewal",
+              onTap: () => _go(context, "/cfp-renewal"),
+            ),
+            _NavItem(
+              title: "About Us",
+              onTap: () => _go(context, "/about"),
+            ),
+            _NavItem(
+              title: "Contact Us",
+              onTap: () => _go(context, "/contact"),
+            ),
+
             const SizedBox(height: 10),
             const Divider(color: Colors.white12, height: 1),
+
+            // ✅ LOG OUT
             _NavItem(
               title: "Log out",
               color: Colors.redAccent,
               onTap: () async {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                Navigator.pop(context); // close drawer
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/login', (route) => false);
               },
             ),
+
             const SizedBox(height: 10),
             const Divider(color: Colors.white12, height: 1),
           ],
@@ -539,14 +507,17 @@ class _ContactAppSidebar extends StatelessWidget {
 }
 
 /* ───────────────────────────────────────────────────────────── */
-/* NAVIGATION COMPONENTS */
+/* NAVIGATION COMPONENTS (reused from HomeScreen) */
 /* ───────────────────────────────────────────────────────────── */
 
 class _NavExpansion extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const _NavExpansion({required this.title, required this.children});
+  const _NavExpansion({
+    required this.title,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -579,7 +550,11 @@ class _NavItem extends StatelessWidget {
   final VoidCallback onTap;
   final Color color;
 
-  const _NavItem({required this.title, required this.onTap, this.color = Colors.white70});
+  const _NavItem({
+    required this.title,
+    required this.onTap,
+    this.color = Colors.white70,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -589,7 +564,11 @@ class _NavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Text(
           title,
-          style: TextStyle(color: color, fontSize: 14.5, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            color: color,
+            fontSize: 14.5,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
@@ -634,14 +613,20 @@ class _ContactFooterSection extends StatelessWidget {
           const SizedBox(height: 10),
           const Text(
             "Providing quality education for\nCalifornia Real Estate and Insurance professionals.",
-            style: TextStyle(color: Colors.white70, height: 1.45, fontSize: 13),
+            style: TextStyle(
+              color: Colors.white70,
+              height: 1.45,
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: 14),
           Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
-              _FooterChip("Contact Us", () => Navigator.pushNamed(context, '/contact')),
+              _FooterChip("Contact Us", () {
+                Navigator.pushNamed(context, '/contact');
+              }),
               _FooterChip("Privacy Policy", () {}),
               _FooterChip("Refund Policy", () {
                 showRefundPolicyBottomSheet(context);
@@ -734,7 +719,11 @@ class _CustomTextField extends StatelessWidget {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: textMuted, fontSize: 14, fontWeight: FontWeight.w400),
+            hintStyle: const TextStyle(
+              color: textMuted,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Color(0xFFE0E5EB), width: 1.5),
@@ -751,7 +740,11 @@ class _CustomTextField extends StatelessWidget {
             filled: true,
             fillColor: Colors.white,
           ),
-          style: const TextStyle(fontSize: 14, color: textDark, fontWeight: FontWeight.w400),
+          style: const TextStyle(
+            fontSize: 14,
+            color: textDark,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );
@@ -766,51 +759,10 @@ class _LicenseInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color primaryNavy = Color(0xFF1A3A5C);
     const Color accentBlue = Color(0xFF2E7EBE);
     const Color textDark = Color(0xFF1C2B3A);
 
-<<<<<<< HEAD
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        bool isSmallScreen = constraints.maxWidth < 400;
-
-        return isSmallScreen
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: const TextStyle(color: textDark, fontSize: 14, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F5FA),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: accentBlue.withOpacity(0.3), width: 1),
-                    ),
-                    child: Text(value, style: const TextStyle(color: accentBlue, fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.3)),
-                  ),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(label, style: const TextStyle(color: textDark, fontSize: 14, fontWeight: FontWeight.w500)),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F5FA),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: accentBlue.withOpacity(0.3), width: 1),
-                    ),
-                    child: Text(value, style: const TextStyle(color: accentBlue, fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.3)),
-                  ),
-                ],
-              );
-      },
-=======
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -840,7 +792,9 @@ class _LicenseInfoRow extends StatelessWidget {
           ),
         ),
       ],
->>>>>>> test-dev
     );
   }
 }
+
+
+
