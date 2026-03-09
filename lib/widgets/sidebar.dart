@@ -259,7 +259,12 @@ class _StatesDropdownPanelState extends State<_StatesDropdownPanel> {
         throw Exception(data['message']?.toString() ?? 'Failed to load states');
       }
 
-      final rawStates = data['data'] as List<dynamic>? ?? [];
+        // Support both API shapes:
+        // - { states: [...] }  (current backend)
+        // - { data: [...] }    (legacy clients)
+        final rawStates = (data['states'] as List<dynamic>?) ??
+          (data['data'] as List<dynamic>?) ??
+          const [];
       return rawStates
           .whereType<Map>()
           .map((e) => Map<String, dynamic>.from(e))
