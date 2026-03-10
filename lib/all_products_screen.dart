@@ -15,8 +15,7 @@ const Color _white   = Colors.white;
 class AllProductsScreen extends StatefulWidget {
   final String initialSearch;
   const AllProductsScreen({super.key, this.initialSearch = ''});
-  
-  
+ 
 
   @override
   State<AllProductsScreen> createState() => _AllProductsScreenState();
@@ -43,14 +42,14 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _cart.addListener(_onCartChanged);
-    _cart.ensureLoaded();
-    _fetchAll();
-    _search = widget.initialSearch;
-_searchController.text = widget.initialSearch;
-  }
+void initState() {
+  super.initState();
+  _search = widget.initialSearch;
+  _searchController.text = widget.initialSearch;
+  _cart.addListener(_onCartChanged);
+  _cart.ensureLoaded();
+  _fetchAll();
+}
 
   @override
   void dispose() {
@@ -475,6 +474,7 @@ class _ToggleChip extends StatelessWidget {
 
 // ── State Section ─────────────────────────────────────────────────────
 class _StateSection extends StatefulWidget {
+  
   final String stateName;
   final List<Map<String, dynamic>> courses;
   final List<Map<String, dynamic>> packages;

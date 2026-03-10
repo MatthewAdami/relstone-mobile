@@ -1,11 +1,10 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import 'api_client.dart';
 
 class AuthService {
-  /// ✅ LOGIN: matches your backend /api/auth/login
-  /// - 200: returns { token, user }
-  /// - 403: returns { needsVerification: true, userId, message }
   static Future<Map<String, dynamic>> login(String email, String password) async {
     final result = await ApiClient.post(
       ApiConfig.login,
@@ -21,9 +20,13 @@ class AuthService {
 
       final prefs = await SharedPreferences.getInstance();
       if (token != null) await prefs.setString('token', token.toString());
-      if (user != null) await prefs.setString('user', user.toString());
+      if (user != null) await prefs.setString('user', jsonEncode(user)); // ✅ was user.toString()
 
-      return {'success': true, 'user': user};
+      return {
+        'success': true,
+        'user': user,
+        'token': token, // ✅ was missing
+      };
     }
 
     if (status == 403 && data['needsVerification'] == true) {

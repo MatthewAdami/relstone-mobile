@@ -30,6 +30,11 @@ migrate_working_dir/
 # Local Android/IDE temp
 android/.kotlin/
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
 # Documentation files (specific local setup files only)
 CONNECTION_FIX_SUMMARY.md
 DEBUGGING_CONNECTION.md
@@ -59,6 +64,10 @@ backend/start-server.ps1
 backend/.env
 
 
+<<<<<<< HEAD
+>>>>>>> 1585d9b (Full UI of Contact Page)
+=======
+>>>>>>> 8d920e3b1b9adeec7b96a156b594f71235330096
 # IntelliJ related
 *.iml
 *.ipr
