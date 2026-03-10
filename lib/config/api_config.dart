@@ -18,6 +18,8 @@ class ApiConfig {
   static String get health   => "$baseUrl$apiPrefix/health";
   static String get me       => "$baseUrl$apiPrefix/auth/me";          // ← ADD
   static String get myCourses => "$baseUrl$apiPrefix/auth/my-courses"; // ← ADD
+  static String get googleMobile => "$baseUrl$apiPrefix/auth/google/mobile";
+
 
   
 
