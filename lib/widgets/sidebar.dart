@@ -105,6 +105,14 @@ class Sidebar extends StatelessWidget {
               onTap: () => _go(context, "/cfp-renewal"),
             ),
             _NavItem(
+              title: "All Products",
+              onTap: () => _go(context, "/all-products"),
+            ),
+            _NavItem(
+              title: "My Profile",
+              onTap: () => _go(context, "/profile"),
+            ),
+            _NavItem(
               title: "About Us",
               onTap: () => _go(context, "/about"),
             ),
