@@ -28,5 +28,5 @@ class ApiConfig {
   static String get health => "$baseUrl$apiPrefix/health";
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
   static String insuranceStateFull(String slug) =>
-      "$baseUrl$apiPrefix/insurance/$slug/full";
+      "$baseUrl$apiPrefix/insurance/states/$slug";
 }
