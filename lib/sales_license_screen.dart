@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:relstone_mobile/widgets/relstone_header.dart';
 
 class SalesLicenseScreen extends StatefulWidget {
   const SalesLicenseScreen({super.key});
@@ -102,15 +103,10 @@ class _SalesLicenseScreenState extends State<SalesLicenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: primaryNavy, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: const RelstoneHeader(
         titleSpacing: 0,
-        title: const Text(
+        trailingSpacing: 8,
+        titleWidget: Text(
           'Sales License',
           style: TextStyle(
             color: primaryNavy,
@@ -118,14 +114,6 @@ class _SalesLicenseScreenState extends State<SalesLicenseScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Cart',
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: ListView(
         padding: EdgeInsets.zero,
