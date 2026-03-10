@@ -75,7 +75,9 @@ void initState() {
         throw Exception(statesData['message']?.toString() ?? 'Failed to load states');
       }
 
-      final statesList = statesData['data'] as List? ?? [];
+        final statesList = (statesData['states'] as List?) ??
+          (statesData['data'] as List?) ??
+          const [];
 
       // 2. Fetch full data for each state
       final List<Map<String, dynamic>> fullData = [];
@@ -88,8 +90,8 @@ void initState() {
         final rData   = r['data']       as Map<String, dynamic>? ?? {};
 
         if (rStatus >= 200 && rStatus < 300) {
-          final d = rData['data'] as Map<String, dynamic>?;
-          if (d != null) fullData.add(d);
+          final d = (rData['data'] as Map<String, dynamic>?) ?? rData;
+          fullData.add(d);
         }
       }
 
@@ -507,9 +509,22 @@ class _StateSectionState extends State<_StateSection> {
 
   String _price(double v) => v.toStringAsFixed(2);
 
+  String _itemId(Map<String, dynamic> item, {required String type}) {
+    final rawId = (item['_id'] ?? '').toString().trim();
+    if (rawId.isNotEmpty) return rawId;
+
+    final name = (item['name'] ?? item['shortName'] ?? '').toString().trim();
+    final normalized = name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+    final price = widget.toDouble(item['price']).toStringAsFixed(2);
+
+    return '$type|${widget.stateName}|$normalized|$price';
+  }
+
   Future<void> _toggleCourse(Map<String, dynamic> course) async {
-    final id = (course['_id'] ?? '').toString();
-    if (id.isEmpty) return;
+    final id = _itemId(course, type: 'course');
 
     if (widget.cart.isInCart(id)) {
       await widget.cart.removeFromCart(id);
@@ -530,8 +545,7 @@ class _StateSectionState extends State<_StateSection> {
   }
 
   Future<void> _togglePackage(Map<String, dynamic> pkg) async {
-    final id = (pkg['_id'] ?? '').toString();
-    if (id.isEmpty) return;
+    final id = _itemId(pkg, type: 'package');
 
     if (widget.cart.isInCart(id)) {
       await widget.cart.removeFromCart(id);
@@ -615,7 +629,7 @@ class _StateSectionState extends State<_StateSection> {
                     ),
                     const SizedBox(height: 8),
                     ...widget.packages.map((pkg) {
-                      final id     = (pkg['_id'] ?? '').toString();
+                      final id     = _itemId(pkg, type: 'package');
                       final inCart = widget.cart.isInCart(id);
                       final bullets = widget.stringList(pkg['coursesIncluded']);
                       return _ProductCard(
@@ -642,7 +656,7 @@ class _StateSectionState extends State<_StateSection> {
                     ),
                     const SizedBox(height: 8),
                     ...widget.courses.map((course) {
-                      final id          = (course['_id'] ?? '').toString();
+                      final id          = _itemId(course, type: 'course');
                       final inCart      = widget.cart.isInCart(id);
                       final hasTextbook = course['hasPrintedTextbook'] == true;
                       final tbPrice     = widget.toDouble(course['printedTextbookPrice']);

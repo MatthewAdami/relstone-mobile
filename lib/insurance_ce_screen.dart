@@ -2381,42 +2381,105 @@ class _InsuranceStateCourseCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                FilledButton(
-                  onPressed: showCourseDetails,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF1F49B6),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+            ListenableBuilder(
+              listenable: CartService.instance,
+              builder: (context, _) {
+                final cart = CartService.instance;
+                final inCart = cart.isInCart(courseId);
+
+                Future<void> handleCardCartTap() async {
+                  if (inCart) {
+                    Navigator.pushNamed(context, '/cart');
+                    return;
+                  }
+
+                  await cart.addToCart(
+                    CartItem(
+                      id: courseId,
+                      type: 'course',
+                      name: shortName.trim().isNotEmpty ? shortName : name,
+                      stateSlug: stateSlug,
+                      stateName: stateName,
+                      price: basePrice,
+                      creditHours: _toInt(creditHours),
+                      withTextbook: false,
+                      textbookPrice: textbookAddon,
+                      quantity: 1,
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 9,
+                  );
+
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Added to cart')),
+                  );
+                }
+
+                return Row(
+                  children: [
+                    FilledButton(
+                      onPressed: showCourseDetails,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1F49B6),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 9,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'VIEW DETAILS',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: const Text(
-                    'VIEW DETAILS',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed: handleCardCartTap,
+                      icon: const Icon(Icons.shopping_cart_outlined, size: 15),
+                      label: Text(
+                        inCart ? 'GO TO CART' : 'ADD CART',
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        side: BorderSide(
+                          color: inCart
+                              ? const Color(0xFF0A7A5B)
+                              : const Color(0xFF1F49B6),
+                        ),
+                        foregroundColor: inCart
+                            ? const Color(0xFF0A7A5B)
+                            : const Color(0xFF1F49B6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 9,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const Spacer(),
-                if (price != null)
-                  Text(
-                    '\$${price.toString()}',
-                    style: const TextStyle(
-                      color: Color(0xFF16A34A),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 22,
-                    ),
-                  ),
-              ],
+                    const Spacer(),
+                    if (price != null)
+                      Text(
+                        '\$${price.toString()}',
+                        style: const TextStyle(
+                          color: Color(0xFF16A34A),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 22,
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
           ],
         ),
