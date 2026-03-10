@@ -4,7 +4,7 @@ import '../config/api_config.dart';
 import '../services/api_client.dart';
 import '../services/cart_service.dart';
 import '../widgets/main_layout.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/sidebar.dart';
 
 class InsuranceStatePage extends StatefulWidget {
   final String? initialSlug;
@@ -203,14 +203,14 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
 
     if (_loading) {
       return MainLayout(
-        drawer: const AppDrawer(),
+        drawer: const Sidebar(),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
       return MainLayout(
-        drawer: const AppDrawer(),
+        drawer: const Sidebar(),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -222,7 +222,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
 
     if (_slug == null || _slug!.isEmpty) {
       return MainLayout(
-        drawer: const AppDrawer(),
+        drawer: const Sidebar(),
         body: const Center(
           child: Padding(
             padding: EdgeInsets.all(16),
@@ -234,7 +234,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
 
     if (_stateData == null || _stateData!.isEmpty) {
       return MainLayout(
-        drawer: const AppDrawer(),
+        drawer: const Sidebar(),
         body: const Center(child: Text('No state data found.')),
       );
     }
@@ -249,7 +249,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
     final examOnline = _stringList(exam['online']);
 
     return MainLayout(
-      drawer: const AppDrawer(),
+      drawer: const Sidebar(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

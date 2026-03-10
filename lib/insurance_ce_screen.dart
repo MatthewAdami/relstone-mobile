@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:relstone_mobile/services/insurance_service.dart';
 import 'package:relstone_mobile/services/cart_service.dart';
 import 'package:relstone_mobile/refund_policy_screen.dart';
+import 'package:relstone_mobile/widgets/sidebar.dart';
 
 class InsuranceCEScreen extends StatefulWidget {
   final bool startInDetailMode;
@@ -553,7 +554,7 @@ class _InsuranceCEScreenState extends State<InsuranceCEScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      drawer: const _InsuranceAppSidebar(),
+      drawer: const Sidebar(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -1560,193 +1561,6 @@ class _SocialCircle extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: Colors.white, size: 15),
-    );
-  }
-}
-
-class _InsuranceAppSidebar extends StatelessWidget {
-  const _InsuranceAppSidebar();
-
-  static const Color navBg = Color(0xFF0B1A2A);
-
-  void _go(BuildContext context, String route) {
-    Navigator.pop(context);
-    Navigator.pushNamed(context, route);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: navBg,
-      child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/relstone_logo.png',
-                    height: 26,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Text(
-                      'RELSTONE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(color: Colors.white12, height: 1),
-
-            _InsuranceNavExpansion(
-              title: 'States',
-              children: [
-                _InsuranceNavItem(
-                  title: 'Select a State',
-                  onTap: () => _go(context, '/states'),
-                ),
-              ],
-            ),
-
-            _InsuranceNavExpansion(
-              title: 'California Real Estate',
-              children: [
-                _InsuranceNavItem(
-                  title: 'Sales License',
-                  onTap: () => _go(context, '/sales'),
-                ),
-                _InsuranceNavItem(
-                  title: 'Broker License',
-                  onTap: () => _go(context, '/broker'),
-                ),
-                _InsuranceNavItem(
-                  title: '45 Hour DRE Renewal CE',
-                  onTap: () => _go(context, '/dre-ce'),
-                ),
-              ],
-            ),
-
-            _InsuranceNavItem(
-              title: 'Exam Prep',
-              onTap: () => _go(context, '/exam-prep'),
-            ),
-
-            _InsuranceNavExpansion(
-              title: 'Insurance CE',
-              children: [
-                _InsuranceNavItem(
-                  title: 'Select a State',
-                  onTap: () => _go(context, '/insurance-states'),
-                ),
-                _InsuranceNavItem(
-                  title: 'Courses',
-                  onTap: () => _go(context, '/insurance-courses'),
-                ),
-              ],
-            ),
-
-            _InsuranceNavItem(
-              title: 'CFP Renewal',
-              onTap: () => _go(context, '/cfp-renewal'),
-            ),
-            _InsuranceNavItem(
-              title: 'About Us',
-              onTap: () => _go(context, '/about'),
-            ),
-            _InsuranceNavItem(
-              title: 'Contact Us',
-              onTap: () => _go(context, '/contact'),
-            ),
-
-            const SizedBox(height: 10),
-            const Divider(color: Colors.white12, height: 1),
-
-            _InsuranceNavItem(
-              title: 'Log out',
-              color: Colors.redAccent,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-              },
-            ),
-
-            const SizedBox(height: 10),
-            const Divider(color: Colors.white12, height: 1),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 18),
-              child: Text(
-                '© 2026 Relstone. All rights reserved.',
-                style: TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InsuranceNavItem extends StatelessWidget {
-  final String title;
-  final VoidCallback onTap;
-  final Color? color;
-
-  const _InsuranceNavItem({
-    required this.title,
-    required this.onTap,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      onTap: onTap,
-      title: Text(
-        title,
-        style: TextStyle(
-          color: color ?? Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _InsuranceNavExpansion extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _InsuranceNavExpansion({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        childrenPadding: const EdgeInsets.only(left: 10, bottom: 8),
-        collapsedIconColor: Colors.white70,
-        iconColor: Colors.white70,
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        children: children,
-      ),
     );
   }
 }
