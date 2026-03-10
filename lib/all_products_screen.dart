@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../config/api_config.dart';
 import '../services/api_client.dart';
 import '../services/cart_service.dart';
+import '../widgets/relstone_header.dart';
 
 // ── Brand Colors ─────────────────────────────────────────────────────
 const Color _navy    = Color(0xFF1A3A5C);
@@ -212,47 +213,7 @@ void initState() {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      appBar: AppBar(
-        backgroundColor: _white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Image.asset(
-          'assets/relstone_logo.png',
-          height: 28,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const Text(
-            'RELSTONE',
-            style: TextStyle(color: _navy, fontWeight: FontWeight.w800, letterSpacing: 1.2),
-          ),
-        ),
-        actions: [
-          Stack(
-            alignment: Alignment.topRight,
-            children: [
-              IconButton(
-                tooltip: 'Cart',
-                onPressed: () => Navigator.pushNamed(context, '/cart'),
-                icon: const Icon(Icons.shopping_cart_outlined, color: _navy),
-              ),
-              if (_cart.items.isNotEmpty)
-                Positioned(
-                  top: 6, right: 6,
-                  child: Container(
-                    width: 16, height: 16,
-                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                    child: Center(
-                      child: Text(
-                        '${_cart.items.length}',
-                        style: const TextStyle(color: _white, fontSize: 10, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
+      appBar: const RelstoneHeader(showCartBadge: true),
       body: Column(
         children: [
           // ── Page Header ───────────────────────────────────

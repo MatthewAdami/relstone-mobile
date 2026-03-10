@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:relstone_mobile/widgets/relstone_header.dart';
 
 class RealEstateCEScreen extends StatefulWidget {
   const RealEstateCEScreen({super.key});
@@ -106,15 +107,10 @@ class _RealEstateCEScreenState extends State<RealEstateCEScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: primaryNavy, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: const RelstoneHeader(
         titleSpacing: 0,
-        title: const Text(
+        trailingSpacing: 8,
+        titleWidget: Text(
           'CA Real Estate CE',
           style: TextStyle(
             color: primaryNavy,
@@ -122,14 +118,6 @@ class _RealEstateCEScreenState extends State<RealEstateCEScreen> {
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Cart',
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: ListView(
         padding: EdgeInsets.zero,

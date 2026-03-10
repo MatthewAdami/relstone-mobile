@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:relstone_mobile/widgets/sidebar.dart';
+import 'package:relstone_mobile/widgets/relstone_header.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({Key? key}) : super(key: key);
@@ -19,37 +20,8 @@ class ContactScreen extends StatelessWidget {
       // ✅ Sidebar / Drawer (shared widget)
       drawer: const Sidebar(),
 
-      // ✅ AppBar (same as HomeScreen)
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/relstone_logo.png',
-              height: 28,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Text(
-                'RELSTONE',
-                style: TextStyle(
-                  color: primaryNavy,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            tooltip: "Cart",
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
+      // ✅ AppBar (shared header)
+      appBar: const RelstoneHeader(),
 
       body: ListView(
         padding: EdgeInsets.zero,

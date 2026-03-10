@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:relstone_mobile/services/insurance_service.dart';
 import 'package:relstone_mobile/services/cart_service.dart';
 import 'package:relstone_mobile/refund_policy_screen.dart';
+import 'package:relstone_mobile/widgets/relstone_header.dart';
 import 'package:relstone_mobile/widgets/sidebar.dart';
 
 class InsuranceCEScreen extends StatefulWidget {
@@ -455,10 +456,9 @@ class _InsuranceCEScreenState extends State<InsuranceCEScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: Text(
+      appBar: RelstoneHeader(
+        showCart: false,
+        titleWidget: Text(
           _detailStateName.isEmpty ? 'Insurance CE' : '$_detailStateName Insurance CE',
           style: const TextStyle(
             color: primaryNavy,
@@ -466,7 +466,6 @@ class _InsuranceCEScreenState extends State<InsuranceCEScreen> {
             fontSize: 18,
           ),
         ),
-        iconTheme: const IconThemeData(color: primaryNavy),
       ),
       body: _isDetailLoading
           ? const Center(child: CircularProgressIndicator())
@@ -555,36 +554,7 @@ class _InsuranceCEScreenState extends State<InsuranceCEScreen> {
     return Scaffold(
       backgroundColor: bg,
       drawer: const Sidebar(),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/relstone_logo.png',
-              height: 28,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Text(
-                'RELSTONE',
-                style: TextStyle(
-                  color: primaryNavy,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Cart',
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: const Icon(Icons.shopping_cart_outlined, color: primaryNavy),
-          ),
-          const SizedBox(width: 6),
-        ],
-      ),
+      appBar: const RelstoneHeader(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
