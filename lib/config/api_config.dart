@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Web uses localhost, Android emulator uses 10.0.2.2.
-  // Backend is now running on port 3002
+  // Backend is running on port 5000
   static String get baseUrl =>
-      kIsWeb ? "http://localhost:3002" : "http://10.0.2.2:3002";
+      kIsWeb ? "http://localhost:5000" : "http://10.0.2.2:5000";
 
   static const String apiPrefix = "/api/v1";
 
@@ -15,4 +15,6 @@ class ApiConfig {
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
   static String insuranceStateFull(String slug) =>
       "$baseUrl$apiPrefix/insurance/$slug/full";
+  static String get cfpPackages => "$baseUrl$apiPrefix/cfp/packages";
+  static String get cfpRenewal => "$baseUrl$apiPrefix/cfp/renewal";
 }

@@ -11,6 +11,7 @@ import 'package:relstone_mobile/contact_screen.dart';
 import 'package:relstone_mobile/about_screen.dart';
 import 'package:relstone_mobile/profile_screen.dart';
 import 'package:relstone_mobile/checkout_screen.dart';
+import 'package:relstone_mobile/cfp_renewal_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -44,7 +45,7 @@ class MainApp extends StatelessWidget {
         '/exam-prep':            (context) => const StatesScreen(),
         '/insurance-states':     (context) => const InsuranceStatePage(),
         '/insurance-courses':    (context) => const StatesScreen(),
-        '/cfp-renewal':          (context) => const StatesScreen(),
+        '/cfp-renewal':          (context) => const CFPRenewalScreen(),
       },
 
       // ── Dynamic routes  (arguments required) ───────────────────

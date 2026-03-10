@@ -630,6 +630,110 @@ app.get(`${API_PREFIX}/documents`, (req, res) => {
 });
 
 // ============================================================================
+// CFP PACKAGES
+// ============================================================================
+
+// Get CFP packages
+app.get(`${API_PREFIX}/cfp/packages`, async (req, res) => {
+  try {
+    if (!webDb) {
+      return res.status(503).json({
+        success: false,
+        error: 'Service Unavailable',
+        message: 'Database connection not available'
+      });
+    }
+
+    const packages = await webDb
+      .collection('packages')
+      .find({ stateSlug: 'cfp-renewal' })
+      .toArray();
+
+    res.status(200).json({
+      success: true,
+      data: packages,
+      count: packages.length
+    });
+  } catch (error) {
+    console.error('Error fetching CFP packages:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch CFP packages',
+      message: error.message
+    });
+  }
+});
+
+// Get all CFP renewal data (state, courses, packages)
+app.get(`${API_PREFIX}/cfp/renewal`, async (req, res) => {
+  try {
+    if (!webDb) {
+      return res.status(503).json({
+        success: false,
+        error: 'Service Unavailable',
+        message: 'Database connection not available'
+      });
+    }
+
+    // Fetch all CFP courses (both individual courses and packages)
+    const allCFPCourses = await webDb
+      .collection('courses')
+      .find({ stateSlug: 'cfp-renewal' })
+      .toArray();
+
+    // Fetch CFP packages from packages collection (if stored separately)
+    const packagesFromCollection = await webDb
+      .collection('packages')
+      .find({ stateSlug: 'cfp-renewal' })
+      .toArray();
+
+    // Separate into individual courses and packages
+    // Packages typically have: coursesIncluded (array), totalHours, badge
+    // Individual courses have: creditHours, courseType, itemNumber
+    const isPackage = (item) => {
+      const courseType = (item.courseType || '').toString().toLowerCase();
+      return item.type === 'package' ||
+        courseType === 'package' ||
+        courseType === 'bundle' ||
+        (item.coursesIncluded && Array.isArray(item.coursesIncluded)) ||
+        item.totalHours ||
+        item.badge;
+    };
+
+    const packagesFromCourses = allCFPCourses.filter(isPackage);
+    const courseCandidates = allCFPCourses.filter(item => !isPackage(item));
+    const courses = courseCandidates.filter(item => item.creditHours || item.hours);
+
+    // Merge package sources (de-dupe by _id string)
+    const packageMap = new Map();
+    for (const pkg of [...packagesFromCourses, ...packagesFromCollection]) {
+      const key = pkg?._id ? pkg._id.toString() : JSON.stringify(pkg);
+      if (!packageMap.has(key)) {
+        packageMap.set(key, pkg);
+      }
+    }
+    const packages = Array.from(packageMap.values());
+
+    console.log(`CFP Renewal: Found ${courses.length} courses and ${packages.length} packages from ${allCFPCourses.length} courses + ${packagesFromCollection.length} packages`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        state: null, // No separate state collection, using null for now
+        courses: courses || [],
+        packages: packages || [],
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching CFP renewal data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch CFP renewal data',
+      message: error.message
+    });
+  }
+});
+// ============================================================================
 // CONTACT FORM
 // ============================================================================
 
@@ -843,7 +947,4 @@ function startServer() {
 
 // Start the server
 startServer();
-
-
-
 
