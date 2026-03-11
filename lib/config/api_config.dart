@@ -37,6 +37,10 @@ class ApiConfig {
   static String certStatus(String courseId) =>
       "$baseUrl$apiPrefix/certificate/status/$courseId";
 
+    // Profile
+    static String studentProfile(String studentId) =>
+      "$baseUrl$apiPrefix/students/${Uri.encodeComponent(studentId)}";
+
   // Insurance (unchanged)
   static String get insuranceStates => "$baseUrl$apiPrefix/insurance/states";
   static String insuranceState(String slug) =>

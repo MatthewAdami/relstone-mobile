@@ -28,6 +28,52 @@ let adminClient = null;
 let webClient = null;
 let adminDb = null;
 let webDb = null;
+const mockStudentProfiles = new Map();
+
+function buildMockStudentProfile(user = {}) {
+  const firstName = (user.firstName || '').toString().trim();
+  const lastName = (user.lastName || '').toString().trim();
+  const name = [firstName, lastName].filter(Boolean).join(' ').trim() || 'User';
+  const studentId = (user.studentId || user.id || '').toString().trim();
+
+  return {
+    studentId,
+    id: (user.id || studentId).toString(),
+    name,
+    firstName,
+    lastName,
+    email: (user.email || '').toString(),
+    mobilePhone: (user.mobilePhone || '').toString(),
+    birthday: (user.birthday || '').toString(),
+    streetAddress: (user.streetAddress || '').toString(),
+    city: (user.city || '').toString(),
+    state: (user.state || '').toString(),
+    postalCode: (user.postalCode || '').toString(),
+    accessDenied: 'N',
+    orders: Array.isArray(user.orders) ? user.orders : [],
+    courses: Array.isArray(user.courses) ? user.courses : [],
+    createdAt: user.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function getOrCreateMockStudentProfile(studentId, seed = {}) {
+  const key = (studentId || '').toString().trim();
+  if (!key) return null;
+
+  if (!mockStudentProfiles.has(key)) {
+    mockStudentProfiles.set(
+      key,
+      buildMockStudentProfile({
+        ...seed,
+        id: seed.id || key,
+        studentId: key,
+      }),
+    );
+  }
+
+  return mockStudentProfiles.get(key);
+}
 
 // ============================================================================
 // MIDDLEWARE SETUP
@@ -355,11 +401,14 @@ function registerAuthRoutes(prefix) {
       const mockToken = 'mock_jwt_token_' + Date.now();
       const mockUser = {
         id: '123456789',
+        studentId: '123456789',
         email: email,
         firstName: email.split('@')[0],
         lastName: 'User',
         createdAt: new Date().toISOString()
       };
+
+      getOrCreateMockStudentProfile(mockUser.studentId, mockUser);
 
       return res.status(200).json({
         message: 'Login successful',
@@ -507,6 +556,79 @@ function registerAuthRoutes(prefix) {
 
 for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
   registerAuthRoutes(prefix);
+}
+
+function registerStudentRoutes(prefix) {
+  app.get(`${prefix}/students/:studentId`, (req, res) => {
+    const studentId = (req.params.studentId || '').toString().trim();
+    if (!studentId) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'studentId is required',
+      });
+    }
+
+    const profile = getOrCreateMockStudentProfile(studentId, {
+      id: studentId,
+      studentId,
+    });
+
+    return res.status(200).json(profile);
+  });
+
+  const updateStudentProfile = (req, res) => {
+    const studentId = (req.params.studentId || '').toString().trim();
+    if (!studentId) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'studentId is required',
+      });
+    }
+
+    const current = getOrCreateMockStudentProfile(studentId, {
+      id: studentId,
+      studentId,
+    });
+
+    const updates = { ...(req.body || {}) };
+    delete updates.orders;
+    delete updates.courses;
+    delete updates.studentId;
+    delete updates.id;
+
+    const firstName = (updates.firstName ?? current.firstName ?? '').toString().trim();
+    const lastName = (updates.lastName ?? current.lastName ?? '').toString().trim();
+    const mergedName = (updates.name || [firstName, lastName].filter(Boolean).join(' ').trim() || current.name || 'User').toString().trim();
+    const normalizedBirthday = (updates.birthday || updates.birthDate || updates.dateOfBirth || current.birthday || '').toString().trim();
+
+    const next = {
+      ...current,
+      ...updates,
+      studentId,
+      id: current.id || studentId,
+      firstName,
+      lastName,
+      name: mergedName,
+      birthday: normalizedBirthday,
+      birthDate: normalizedBirthday,
+      dateOfBirth: normalizedBirthday,
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockStudentProfiles.set(studentId, next);
+
+    return res.status(200).json({
+      message: 'Profile updated successfully',
+      student: next,
+    });
+  };
+
+  app.put(`${prefix}/students/:studentId`, updateStudentProfile);
+  app.patch(`${prefix}/students/:studentId`, updateStudentProfile);
+}
+
+for (const prefix of [...new Set([API_PREFIX, '/api'])]) {
+  registerStudentRoutes(prefix);
 }
 
 // Users routes
