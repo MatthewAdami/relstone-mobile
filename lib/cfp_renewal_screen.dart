@@ -22,7 +22,7 @@ class _CFPRenewalScreenState extends State<CFPRenewalScreen> {
 
   final CartService _cart = CartService.instance;
 
-  // ── State for packages and courses ──────────────────────────────────────
+  // ── State for packages   and courses ──────────────────────────────────────
   bool _loading = true;
   String? _error;
   List<Map<String, dynamic>> _packages = [];
