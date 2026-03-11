@@ -83,10 +83,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
         throw Exception(data['message']?.toString() ?? 'Failed to load state data');
       }
 
-      final full = data['data'] as Map<String, dynamic>?;
-      if (full == null) {
-        throw Exception('Invalid API response shape');
-      }
+      final full = (data['data'] as Map<String, dynamic>?) ?? data;
 
       final state = full['state'] as Map<String, dynamic>? ?? <String, dynamic>{};
       final coursesRaw = full['courses'] as List? ?? const [];
@@ -114,6 +111,21 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
 
   bool _isInCart(String id) => _cart.isInCart(id);
 
+  String _itemId(Map<String, dynamic> item, {required String type}) {
+    final rawId = (item['_id'] ?? '').toString().trim();
+    if (rawId.isNotEmpty) return rawId;
+
+    final slug = (_slug ?? '').trim();
+    final name = (item['name'] ?? item['shortName'] ?? '').toString().trim();
+    final price = _num(item['price']).toStringAsFixed(2);
+    final keyName = name
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+
+    return '$type|$slug|$keyName|$price';
+  }
+
   void _toggleTextbook(String id) {
     setState(() {
       _textbookSelections[id] = !(_textbookSelections[id] ?? false);
@@ -125,8 +137,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
   }
 
   Future<void> _toggleCourseCart(Map<String, dynamic> course) async {
-    final id = (course['_id'] ?? '').toString();
-    if (id.isEmpty) return;
+    final id = _itemId(course, type: 'course');
 
     if (_cart.isInCart(id)) {
       await _cart.removeFromCart(id);
@@ -151,8 +162,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
   }
 
   Future<void> _togglePackageCart(Map<String, dynamic> pkg) async {
-    final id = (pkg['_id'] ?? '').toString();
-    if (id.isEmpty) return;
+    final id = _itemId(pkg, type: 'package');
 
     if (_cart.isInCart(id)) {
       await _cart.removeFromCart(id);
@@ -360,7 +370,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
               title: 'Complete CE Packages — Renew Your $stateName Insurance License',
               child: Column(
                 children: _packages.map((pkg) {
-                  final id = (pkg['_id'] ?? '').toString();
+                  final id = _itemId(pkg, type: 'package');
                   final inCart = _isInCart(id);
                   final coursesIncluded = _stringList(pkg['coursesIncluded']);
 
@@ -380,7 +390,7 @@ class _InsuranceStatePageState extends State<InsuranceStatePage> {
               title: 'Individual Courses',
               child: Column(
                 children: _courses.map((course) {
-                  final id = (course['_id'] ?? '').toString();
+                  final id = _itemId(course, type: 'course');
                   final inCart = _isInCart(id);
                   final hasTextbook = course['hasPrintedTextbook'] == true;
                   final textbookPrice = _num(course['printedTextbookPrice']);

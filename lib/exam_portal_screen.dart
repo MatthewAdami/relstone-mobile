@@ -318,16 +318,35 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('⚠️', style: TextStyle(fontSize: 40)),
-          const SizedBox(height: 12),
-          const Text('Failed to Load Exam', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          Text(_error, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)), textAlign: TextAlign.center),
+          Container(
+            width: 64, height: 64,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFFED7AA), width: 2),
+            ),
+            child: const Icon(Icons.lock_clock_rounded, color: Color(0xFFF97316), size: 32),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Exam Unavailable',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'This exam is not available at the moment.\nPlease try again later or contact your administrator.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.6),
+          ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(backgroundColor: blue),
-            child: const Text('Go Back', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0F172A),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Go Back', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ]),
       ),
@@ -530,7 +549,8 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
                           children: [
                             _legendDot(blue, 'Answered'),
                             const SizedBox(width: 12),
-                            _legendDot(const Color(0xFFE2E8F0), 'Unanswered'),
+                            // ── CHANGED: unanswered legend is now red ──
+                            _legendDot(red, 'Unanswered'),
                             const SizedBox(width: 12),
                             _legendDot(Colors.black, 'Current', border: true),
                           ],
@@ -549,10 +569,15 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
                               child: Container(
                                 width: 36, height: 36,
                                 decoration: BoxDecoration(
-                                  color: isAnswered ? blue : Colors.white,
+                                  // ── CHANGED: unanswered = red background, answered = blue ──
+                                  color: isAnswered ? blue : const Color(0xFFFFE4E4),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: isActive ? Colors.black : const Color(0xFFD1D5DB),
+                                    color: isActive
+                                        ? Colors.black
+                                        : isAnswered
+                                            ? blue
+                                            : red,
                                     width: isActive ? 2 : 1,
                                   ),
                                 ),
@@ -562,7 +587,8 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: isAnswered ? Colors.white : const Color(0xFF374151),
+                                      // ── CHANGED: unanswered number text = red ──
+                                      color: isAnswered ? Colors.white : red,
                                     ),
                                   ),
                                 ),
@@ -769,6 +795,8 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
 
   // ── Confirm Modal ─────────────────────────────────────────
   Widget _buildConfirmModal() {
+    final canSubmit = _unanswered == 0;
+
     return Container(
       color: Colors.black54,
       child: Center(
@@ -783,20 +811,40 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_unanswered > 0 ? '⚠️' : '✅', style: const TextStyle(fontSize: 40)),
+              // ── CHANGED: icon reflects canSubmit state ──
+              Text(canSubmit ? '✅' : '🚫', style: const TextStyle(fontSize: 40)),
               const SizedBox(height: 14),
               Text(
-                _unanswered > 0 ? 'Unanswered Questions' : 'Ready to Submit?',
+                canSubmit ? 'Ready to Submit?' : 'Unanswered Questions',
                 style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800,
                     color: Color(0xFF0F172A)),
               ),
               const SizedBox(height: 8),
+
+              // ── CHANGED: red warning box when unanswered ──
+              if (!canSubmit)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFCA5A5)),
+                  ),
+                  child: Text(
+                    '❌  You still have $_unanswered unanswered question${_unanswered > 1 ? 's' : ''}.\nPlease answer all questions before submitting.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 13, color: Color(0xFFB91C1C),
+                        fontWeight: FontWeight.w600, height: 1.5),
+                  ),
+                ),
+
               Text(
-                _unanswered > 0
-                    ? 'You have $_unanswered unanswered question${_unanswered > 1 ? 's' : ''}. '
-                      'Unanswered questions will be marked incorrect.'
-                    : 'You\'ve answered all $_totalCount questions. '
-                      'Once submitted, you cannot change your answers.',
+                canSubmit
+                    ? 'You\'ve answered all $_totalCount questions. '
+                      'Once submitted, you cannot change your answers.'
+                    : 'Tap "Go Back" to answer the remaining questions.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.5),
               ),
@@ -819,26 +867,36 @@ class _ExamPortalScreenState extends State<ExamPortalScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Continue Exam',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                      child: Text(
+                        canSubmit ? 'Continue Exam' : 'Go Back',
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _submitting ? null : () {
+                      // ── CHANGED: disabled if unanswered > 0 ──
+                      onPressed: (_submitting || !canSubmit) ? null : () {
                         setState(() => _showConfirm = false);
                         _submitExam();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: green,
+                        // ── CHANGED: grey when disabled, green when ready ──
+                        backgroundColor: canSubmit ? green : const Color(0xFFD1D5DB),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       child: Text(
-                        _submitting ? 'Submitting...' : 'Yes, Submit',
-                        style: const TextStyle(color: Colors.white,
-                            fontWeight: FontWeight.w700, fontSize: 13),
+                        _submitting
+                            ? 'Submitting...'
+                            : canSubmit
+                                ? 'Yes, Submit'
+                                : 'Answer All First',
+                        style: TextStyle(
+                          color: canSubmit ? Colors.white : const Color(0xFF9CA3AF),
+                          fontWeight: FontWeight.w700, fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
@@ -953,8 +1011,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                       color: Colors.black26,
                     ),
                     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('$score%', style: const TextStyle(color: Colors.white,
-                          fontSize: 26, fontWeight: FontWeight.w900)),
+                      Text(
+                        passed ? '$score%' : '—',
+                        style: const TextStyle(color: Colors.white,
+                            fontSize: 26, fontWeight: FontWeight.w900)),
                       const Text('SCORE', style: TextStyle(color: Colors.white54, fontSize: 9, letterSpacing: 1)),
                     ]),
                   ),
@@ -967,10 +1027,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(children: [
-                _statCard('$correct',   'Correct',   '✓', green,  const Color(0xFFF0FDF4), const Color(0xFFBBF7D0)),
-                const SizedBox(width: 10),
-                _statCard('$incorrect', 'Incorrect', '✗', red,    const Color(0xFFFEF2F2), const Color(0xFFFECACA)),
-                const SizedBox(width: 10),
+                if (passed) ...[
+                  _statCard('$correct',   'Correct',   '✓', green,  const Color(0xFFF0FDF4), const Color(0xFFBBF7D0)),
+                  const SizedBox(width: 10),
+                  _statCard('$incorrect', 'Incorrect', '✗', red,    const Color(0xFFFEF2F2), const Color(0xFFFECACA)),
+                  const SizedBox(width: 10),
+                ],
                 _statCard('$total',     'Total Qs',  '?', blue,   const Color(0xFFEFF6FF), const Color(0xFFBFDBFE)),
                 const SizedBox(width: 10),
                 _statCard('70%',        'Passing',   '★', const Color(0xFFD97706), const Color(0xFFFFFBEB), const Color(0xFFFDE68A)),
@@ -982,11 +1044,13 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
-                _filterTab('all',       'All ($total)'),
-                const SizedBox(width: 8),
-                _filterTab('incorrect', 'Incorrect ($incorrect)'),
-                const SizedBox(width: 8),
-                _filterTab('correct',   'Correct ($correct)'),
+                _filterTab('all', 'All ($total)'),
+                if (passed) ...[
+                  const SizedBox(width: 8),
+                  _filterTab('incorrect', 'Incorrect ($incorrect)'),
+                  const SizedBox(width: 8),
+                  _filterTab('correct',   'Correct ($correct)'),
+                ],
               ]),
             ),
           ),
@@ -1007,7 +1071,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     ),
                   );
                 }
-                return _buildReviewCard(filtered[i], i);
+                return _buildReviewCard(filtered[i], i, passed: passed);
               },
               childCount: filtered.length + 1,
             ),
@@ -1064,7 +1128,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     );
   }
 
-  Widget _buildReviewCard(Map<String, dynamic> q, int i) {
+  Widget _buildReviewCard(Map<String, dynamic> q, int i, {required bool passed}) {
     final isCorrect = q['isCorrect'] == true;
     final opts      = q['options'] as Map<String, dynamic>? ?? {};
 
@@ -1080,31 +1144,36 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
           Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color: isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+              color: passed
+                  ? (isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2))
+                  : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: isCorrect ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
+              border: Border.all(color: passed
+                  ? (isCorrect ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA))
+                  : const Color(0xFFE2E8F0)),
             ),
             child: Center(child: Text(
               '${q['questionNumber'] ?? (i + 1)}',
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
-                  color: isCorrect ? green : red),
+                  color: passed ? (isCorrect ? green : red) : const Color(0xFF374151)),
             )),
           ),
           const SizedBox(width: 10),
           Expanded(child: Text(q['question'] ?? '',
               style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600,
                   color: Color(0xFF0F172A), height: 1.5))),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isCorrect ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
+          if (passed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isCorrect ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
+              ),
+              child: Text(isCorrect ? '✓ Correct' : '✗ Incorrect',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
+                      color: isCorrect ? green : red)),
             ),
-            child: Text(isCorrect ? '✓ Correct' : '✗ Incorrect',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
-                    color: isCorrect ? green : red)),
-          ),
         ]),
         const SizedBox(height: 12),
         ...['A', 'B', 'C', 'D'].map((key) {
@@ -1117,13 +1186,21 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 tColor = const Color(0xFF374151), kBg = const Color(0xFFE2E8F0),
                 kColor = const Color(0xFF374151);
 
-          if (isCorrectAns) {
-            bg = const Color(0xFFF0FDF4); bColor = const Color(0xFF86EFAC);
-            tColor = const Color(0xFF15803D); kBg = green; kColor = Colors.white;
-          }
-          if (isStudentAns && !isCorrectAns) {
-            bg = const Color(0xFFFEF2F2); bColor = const Color(0xFFFCA5A5);
-            tColor = const Color(0xFFB91C1C); kBg = red; kColor = Colors.white;
+          if (passed) {
+            if (isCorrectAns) {
+              bg = const Color(0xFFF0FDF4); bColor = const Color(0xFF86EFAC);
+              tColor = const Color(0xFF15803D); kBg = green; kColor = Colors.white;
+            }
+            if (isStudentAns && !isCorrectAns) {
+              bg = const Color(0xFFFEF2F2); bColor = const Color(0xFFFCA5A5);
+              tColor = const Color(0xFFB91C1C); kBg = red; kColor = Colors.white;
+            }
+          } else {
+            // Failed: only highlight the student's selected answer in blue
+            if (isStudentAns) {
+              bg = const Color(0xFFEFF6FF); bColor = const Color(0xFF93C5FD);
+              tColor = const Color(0xFF1D4ED8); kBg = const Color(0xFF2563EB); kColor = Colors.white;
+            }
           }
 
           return Container(
@@ -1137,15 +1214,17 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 child: Center(child: Text(key, style: TextStyle(color: kColor, fontSize: 10, fontWeight: FontWeight.w700)))),
               const SizedBox(width: 10),
               Expanded(child: Text(text, style: TextStyle(fontSize: 12.5, color: tColor,
-                  fontWeight: (isCorrectAns || isStudentAns) ? FontWeight.w600 : FontWeight.w400))),
-              if (isCorrectAns)
+                  fontWeight: isStudentAns ? FontWeight.w600 : FontWeight.w400))),
+              if (passed && isCorrectAns)
                 Text('✓ Correct', style: TextStyle(fontSize: 10, color: green, fontWeight: FontWeight.w700)),
-              if (isStudentAns && !isCorrectAns)
+              if (passed && isStudentAns && !isCorrectAns)
                 Text('✗ Your Answer', style: TextStyle(fontSize: 10, color: red, fontWeight: FontWeight.w700)),
+              if (!passed && isStudentAns)
+                Text('Your Answer', style: TextStyle(fontSize: 10, color: const Color(0xFF2563EB), fontWeight: FontWeight.w700)),
             ]),
           );
         }),
-        if (q['pageReference'] != null && q['pageReference'].toString().isNotEmpty)
+        if (q['pageReference'] != null && q['pageReference'].toString().isNotEmpty && passed)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text('📖 Page Reference: ${q['pageReference']}',

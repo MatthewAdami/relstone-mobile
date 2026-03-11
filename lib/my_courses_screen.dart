@@ -218,10 +218,6 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> with SingleTickerProv
               course: list[i],
               token: _token,
               studentId: _studentId,
-              onNavigateToExam: (bundleId, examName) => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ExamPortalScreen(bundleId: bundleId, examName: examName)),
-              ),
             ),
           ),
         );
@@ -249,9 +245,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> with SingleTickerProv
 class _CourseCard extends StatefulWidget {
   final Map<String, dynamic> course;
   final String token, studentId;
-  final void Function(String, String) onNavigateToExam;
-  const _CourseCard({required this.course, required this.token,
-      required this.studentId, required this.onNavigateToExam});
+  const _CourseCard({required this.course, required this.token, required this.studentId});
   @override State<_CourseCard> createState() => _CourseCardState();
 }
 
@@ -271,15 +265,13 @@ class _CourseCardState extends State<_CourseCard> {
     return t ?? 'Course';
   }
 
-  // ── FIX: safe score display — never shows "null%" ─────────────────────────
   String _scoreLabel(dynamic score, String suffix) {
-    if (score == null) return 'Passed';               // completed but no score stored
+    if (score == null) return 'Passed';
     final n = num.tryParse(score.toString());
-    if (n == null) return suffix;                     // unparseable
+    if (n == null) return suffix;
     return '${n.toInt()}% $suffix';
   }
 
-  // ── Download certificate PDF ───────────────────────────────────────────────
   Future<void> _downloadCertificate(BuildContext context, String courseId, String courseTitle) async {
     if (_downloading || courseId.isEmpty) return;
     setState(() => _downloading = true);
@@ -299,13 +291,7 @@ class _CourseCardState extends State<_CourseCard> {
 
     try {
       final url = '${ApiConfig.baseUrl}${ApiConfig.apiPrefix}/certificate/download/$courseId';
-      debugPrint('📄 Cert URL: $url');
-
-      final res = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer ${widget.token}'},
-      );
-
+      final res = await http.get(Uri.parse(url), headers: {'Authorization': 'Bearer ${widget.token}'});
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       if (res.statusCode != 200) {
@@ -314,30 +300,25 @@ class _CourseCardState extends State<_CourseCard> {
         throw Exception(msg);
       }
 
-      // Save PDF — direct Android Downloads path (no path_provider)
       final safeName = courseTitle.replaceAll(RegExp(r'[^\w\s]'), '').replaceAll(' ', '_');
       final String savePath = Platform.isAndroid
-          ? '/storage/emulated/0/Download/Certificate_\$safeName.pdf'
-          : '/tmp/Certificate_\$safeName.pdf';
+          ? '/storage/emulated/0/Download/Certificate_$safeName.pdf'
+          : '/tmp/Certificate_$safeName.pdf';
       final file = File(savePath);
       if (!await file.parent.exists()) await file.parent.create(recursive: true);
       await file.writeAsBytes(res.bodyBytes);
-      debugPrint('✅ Saved to: \${file.path}');
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('✅ Saved to Downloads:\n${file.path.split('/').last}'),
-          backgroundColor: _green,
-          duration: const Duration(seconds: 5),
+          backgroundColor: _green, duration: const Duration(seconds: 5),
         ));
       }
     } catch (e) {
-      debugPrint('❌ Download error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('❌ ${e.toString()}'),
-          backgroundColor: _red,
+          content: Text('❌ ${e.toString()}'), backgroundColor: _red,
         ));
       }
     } finally {
@@ -351,13 +332,13 @@ class _CourseCardState extends State<_CourseCard> {
     final s           = _getStatus(c['status']?.toString());
     final sKey        = _getStatusKey(c['status']?.toString());
     final bundleId    = c['bundleId']?.toString() ?? '';
-    final courseId    = c['_id']?.toString() ?? '';           // ← MongoDB _id for the API
+    final courseId    = c['_id']?.toString() ?? '';
     final courseTitle = c['courseTitle']?.toString() ?? bundleId;
     final examNames   = (c['examNames'] as List? ?? []).map((e) => e.toString()).toList();
     final versions    = (c['versions']  as List? ?? []).map((e) => e.toString()).toList();
     final progress    = (c['progress']  as num? ?? 0).toInt();
     final title       = examNames.isNotEmpty ? examNames.first : courseTitle;
-    final examScore   = c['examScore'];                        // may be null
+    final examScore   = c['examScore'];
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -367,7 +348,6 @@ class _CourseCardState extends State<_CourseCard> {
       child: Column(children: [
         Padding(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-          // Badge row
           Row(children: [
             Expanded(child: Wrap(spacing: 4, children: versions.isNotEmpty
                 ? versions.map((v) => _pill(v.replaceAll('Version ', 'Ver '))).toList()
@@ -383,7 +363,6 @@ class _CourseCardState extends State<_CourseCard> {
           ]),
           const SizedBox(height: 12),
 
-          // Icon + title
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(width: 48, height: 48,
                 decoration: BoxDecoration(color: s.badgeBg, borderRadius: BorderRadius.circular(12)),
@@ -412,7 +391,6 @@ class _CourseCardState extends State<_CourseCard> {
 
           const SizedBox(height: 12), const Divider(height: 1), const SizedBox(height: 10),
 
-          // Progress bar
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Text('Progress', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
             Text('$progress%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
@@ -429,9 +407,7 @@ class _CourseCardState extends State<_CourseCard> {
           ],
           const SizedBox(height: 10),
 
-          // Action row
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            // ── FIX: "null% Passed" → safe label ──────────────────────────
             if (sKey == 'complete')
               Text(_scoreLabel(examScore, 'Passed'),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _green))
@@ -445,13 +421,12 @@ class _CourseCardState extends State<_CourseCard> {
             if (sKey == 'in-progress' && examNames.isNotEmpty)
               _actionBtn('Continue', Icons.play_arrow_rounded, _blue, false)
             else if (sKey == 'complete')
-              _certBtn(context, courseId, courseTitle)   // ← WIRED UP
+              _certBtn(context, courseId, courseTitle)
             else if (sKey == 'failed' && examNames.isNotEmpty)
               _actionBtn('Retake', Icons.refresh_rounded, _purple, true),
           ]),
         ])),
 
-        // Exam selector (expanded)
         if (_expanded && examNames.isNotEmpty) ...[
           const Divider(height: 1),
           Container(color: _bg, padding: const EdgeInsets.all(12),
@@ -462,7 +437,6 @@ class _CourseCardState extends State<_CourseCard> {
               ...examNames.map((en) => _ExamTile(
                 examName: en, bundleId: bundleId,
                 studentId: widget.studentId, token: widget.token,
-                onTap: () => widget.onNavigateToExam(bundleId, en),
               )),
             ])),
         ],
@@ -470,7 +444,6 @@ class _CourseCardState extends State<_CourseCard> {
     );
   }
 
-  // ── Certificate download button ────────────────────────────────────────────
   Widget _certBtn(BuildContext context, String courseId, String courseTitle) =>
     GestureDetector(
       onTap: () => _downloadCertificate(context, courseId, courseTitle),
@@ -488,10 +461,8 @@ class _CourseCardState extends State<_CourseCard> {
           else
             const Icon(Icons.download_rounded, color: _green, size: 14),
           const SizedBox(width: 5),
-          Text(
-            _downloading ? 'Downloading...' : 'Certificate',
-            style: const TextStyle(color: _green, fontSize: 12, fontWeight: FontWeight.w700),
-          ),
+          Text(_downloading ? 'Downloading...' : 'Certificate',
+              style: const TextStyle(color: _green, fontSize: 12, fontWeight: FontWeight.w700)),
         ]),
       ),
     );
@@ -522,9 +493,8 @@ class _CourseCardState extends State<_CourseCard> {
 // ── ExamTile ──────────────────────────────────────────────────────────────────
 class _ExamTile extends StatefulWidget {
   final String examName, bundleId, studentId, token;
-  final VoidCallback onTap;
   const _ExamTile({required this.examName, required this.bundleId,
-      required this.studentId, required this.token, required this.onTap});
+      required this.studentId, required this.token});
   @override State<_ExamTile> createState() => _ExamTileState();
 }
 
@@ -536,10 +506,7 @@ class _ExamTileState extends State<_ExamTile> {
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
-    if (widget.studentId.isEmpty || widget.bundleId.isEmpty) {
-      debugPrint('⚠️ ExamTile: skipping — studentId="${widget.studentId}" bundleId="${widget.bundleId}"');
-      return;
-    }
+    if (widget.studentId.isEmpty || widget.bundleId.isEmpty) return;
     setState(() => _loading = true);
     try {
       final res = await http.get(
@@ -550,13 +517,46 @@ class _ExamTileState extends State<_ExamTile> {
         final data    = jsonDecode(res.body) as Map<String, dynamic>;
         final summary = data['examSummary'] as Map<String, dynamic>? ?? {};
         if (mounted) setState(() => _result = summary[widget.examName] as Map<String, dynamic>?);
-      } else {
-        debugPrint('⚠️ ExamTile load failed: ${res.statusCode} ${res.body}');
       }
     } catch (e) {
       debugPrint('❌ ExamTile load error: $e');
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  // ── KEY FIX: smart navigation based on exam status ────────────────────────
+  void _handleTap(BuildContext context) {
+    final passed     = _result?['passed'] == true;
+    final inProgress = _result?['status'] == 'in-progress';
+
+    if (passed) {
+      // ✅ Already passed — show results screen, cannot restart
+      Navigator.push(context, MaterialPageRoute(
+        builder: (_) => ExamResultsScreen(
+          result: {
+            'passed':          true,
+            'score':           _result?['latestScore'] ?? 0,
+            'correctCount':    _result?['correctCount'] ?? 0,
+            'totalCount':      _result?['totalCount'] ?? 0,
+            'version':         _result?['version'] ?? '',
+            'attemptNumber':   _result?['attempts'] ?? 1,
+            'gradedQuestions': _result?['gradedQuestions'] ?? [],
+          },
+          examName:  widget.examName,
+          bundleId:  widget.bundleId,
+          isTimeout: false,
+        ),
+      ));
+      return;
+    }
+
+    // ❌ Failed or not started → open exam (retake or fresh)
+    Navigator.push(context, MaterialPageRoute(
+      builder: (_) => ExamPortalScreen(
+        bundleId: widget.bundleId,
+        examName: widget.examName,
+      ),
+    ));
   }
 
   @override
@@ -575,7 +575,8 @@ class _ExamTileState extends State<_ExamTile> {
     if (failed)     { borderC = _red;    bgC = const Color(0xFFFEF2F2); statusT = 'Failed';      statusC = _red;    statusI = Icons.cancel_rounded; }
     if (inProgress) { borderC = _orange; bgC = const Color(0xFFFFF7ED); statusT = 'In Progress'; statusC = _orange; statusI = Icons.pending_rounded; }
 
-    return GestureDetector(onTap: widget.onTap,
+    return GestureDetector(
+      onTap: () => _handleTap(context), // ← FIX: was widget.onTap (always opened ExamPortalScreen)
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -603,8 +604,14 @@ class _ExamTileState extends State<_ExamTile> {
             const SizedBox(width: 16, height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2, color: _muted))
           else
-            const Icon(Icons.chevron_right_rounded, color: _muted, size: 20),
+            // Lock icon for passed, arrow for everything else
+            Icon(
+              passed ? Icons.lock_rounded : Icons.chevron_right_rounded,
+              color: passed ? _green : _muted,
+              size: 20,
+            ),
         ]),
-      ));
+      ),
+    );
   }
 }
