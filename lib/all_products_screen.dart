@@ -276,7 +276,7 @@ void initState() {
                 // State dropdown
                 if (_allData.isNotEmpty)
                   DropdownButtonFormField<String>(
-                    value: _selectedState,
+                    initialValue: _selectedState,
                     decoration: InputDecoration(
                       labelText: 'State',
                       labelStyle: const TextStyle(fontSize: 12, color: _muted),
